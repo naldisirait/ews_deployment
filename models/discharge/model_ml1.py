@@ -65,7 +65,7 @@ def create_model_fc_resnet(input_size, output_size, dropout_prob=0.2):
 
 def load_model_ml1(input_size, output_size):
     model = create_model_fc_resnet(input_size, output_size)
-    trained_model_ml1 = '/opt/ews/ews_deployment/models/discharge/trained model/Ml 1 lr e4 bs 32 resnet.pth'
+    trained_model_ml1 = 'models/discharge/trained model/Ml 1 lr e4 bs 32 resnet.pth'
     # Load the saved weights into the model
     model.load_state_dict(torch.load(trained_model_ml1))
     model.eval()
