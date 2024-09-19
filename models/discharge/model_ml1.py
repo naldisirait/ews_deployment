@@ -65,7 +65,10 @@ def create_model_fc_resnet(input_size, output_size, dropout_prob=0.2):
 
 def load_model_ml1(input_size, output_size):
     model = create_model_fc_resnet(input_size, output_size)
-    trained_model_ml1 = 'models/discharge/trained model/Ml_1_lr_e4_bs_32_resnet.pth'
+    #trained_model_ml1 = 'models/discharge/trained model/Ml_1_lr_e4_bs_32_resnet.pth'
+
+    # Dynamically construct the full path
+    trained_model_ml1 = os.path.join("/opt", "ews", "ews_deployment", "models", "discharge", "trained_model", "Ml_1_lr_e4_bs_32_resnet.pth")
     # Load the saved weights into the model
     model.load_state_dict(torch.load(trained_model_ml1))
     model.eval()
