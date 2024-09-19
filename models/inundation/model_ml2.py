@@ -67,7 +67,7 @@ def create_model_ml2(input_size, output_size):
 
 def load_model_ml2(input_size, output_size):
     model = create_model_ml2(input_size, output_size)
-    trained_model_ml2 = r'C:\Users\62812\Documents\Kerjaan Meteorologi\FEWS BNPB\Code\github\EWS of Flood Forecast\models\inundation\Improved CNN Kabir ML2 100 epoch 37 kasus.pth'
+    trained_model_ml2 = '/opt/ews/models/inundation/Improved CNN Kabir ML2 100 epoch 37 kasus.pth'
     # Load the saved weights into the model
     model.load_state_dict(torch.load(trained_model_ml2))
     model.eval()
