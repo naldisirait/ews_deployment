@@ -1,6 +1,7 @@
 import torch.nn as nn
 import torch.optim as optim
 import torch
+import os
 
 # Define a basic ResNet block with dropout
 class BasicBlock(nn.Module):
