@@ -2,8 +2,8 @@ import re
 from datetime import datetime, timedelta
 import os
 
-os.environ['HADOOP_HOME'] = '/etc/hadoop'
-os.environ['HADOOP_CONF_DIR'] = '/etc/hadoop/conf'
+# os.environ['HADOOP_HOME'] = '/etc/hadoop'
+# os.environ['HADOOP_CONF_DIR'] = '/etc/hadoop/conf'
 
 # Function to extract the timestamp using regex
 def extract_timestamp(file_path):
