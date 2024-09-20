@@ -105,10 +105,9 @@ def get_precipitation_from_big_lake(hours):
     Args:
         hours (int): Number of hours to look back
     Returns:
+        output(dict/None): dictionary if the data available. None if does not available
 
-    
     """
-
     from pyspark.sql import SparkSession
     spark = SparkSession.builder \
         .appName("master") \
@@ -122,10 +121,23 @@ def get_precipitation_from_big_lake(hours):
     hdfs_path = "/user/warehouse/SPLP/PUPR/curah_hujan/palu"
     # hdfs_path = "/user/warehouse/SPLP/PUPR"
     # hdfs_path = "/user/warehouse/JAXA/curah_hujan"
+
     # List HDFS files recursively
     hdfs_files = list_hdfs_files_recursive(spark, hdfs_path)
 
     json_files = [i for i in hdfs_files if (".json" in i and "curah_hujan" in i) and ("unstructed" not in i)]
    
     # Check if data is available for the last N hours
-    result = check_last_hours_data(json_files, 10)
+    availability, paths = check_last_hours_data(json_files, hours)
+
+    if availability == "Available":
+        prec_per_time = {}
+        path = json_files[-1]
+        for n,path in enumerate(paths):
+            json_data = spark.read.option("multiline","true").json(path)
+            df = json_data.toPandas()
+            prec_per_time[path] = df
+        output = prec_per_time
+    else:
+        output = None
+    return output
