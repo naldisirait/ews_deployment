@@ -19,23 +19,6 @@ def extract_timestamp(file_path):
     else:
         return None
         
-import re
-from datetime import datetime, timedelta
-
-# Function to extract the timestamp using regex
-def extract_timestamp(file_path):
-    # Regular expression to extract the timestamp from the file path
-    timestamp_pattern = re.compile(r'(\d{4}-\d{2}-\d{2})_(\d{2}-\d{2}-\d{2})')
-    match = timestamp_pattern.search(file_path)
-    if match:
-        date_str = match.group(1)  # YYYY-MM-DD
-        time_str = match.group(2)  # HH-MM-SS
-        timestamp_str = f'{date_str} {time_str}'
-        timestamp = datetime.strptime(timestamp_str, '%Y-%m-%d %H-%M-%S')  # Convert to datetime object
-        return timestamp
-    else:
-        return None
-        
 def check_last_hours_data(file_paths, hours):
     """
     Function to checks if data is available for the last `N hours`. If all data is available, it returns the list of file paths for 
@@ -51,8 +34,8 @@ def check_last_hours_data(file_paths, hours):
     # Get current time and the time 'hours' ago
     current_time = datetime.now().replace(minute=0, second=0, microsecond=0)
     start_time = current_time - timedelta(hours=hours)
-    print(f"current_time : {current_time }")
-    print(f"start_time : {start_time}")
+    #print(f"current_time : {current_time }")
+    #print(f"start_time : {start_time}")
 
     # Collect all timestamps and map them to their corresponding file paths
     available_files = [(extract_timestamp(path), path) for path in file_paths if extract_timestamp(path) is not None]
