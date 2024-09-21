@@ -14,7 +14,7 @@ from src.gsmap_data_pipeline import get_input_precip_data
 from src.data_processing import get_input_ml1
 from src.data_ingesting import get_precipitation_from_big_lake
 from src.utils import inference_model,to_tensor
-from src.post_processing import convert_array_to_tif, output_ml1_to_json, output_ml1_to_dict
+from src.post_processing import convert_array_to_tif, output_ml1_to_json, output_ml1_to_dict, output_ml2_to_dict
 
 def get_current_datetime():
     # Get the current date and time
@@ -59,15 +59,17 @@ def do_prediction():
     output_ml1 = inference_model(model_ml1,input_ml1)
     print(output_ml1.shape)
 
-    # #Convert to dict
+    # #Convert output ml1 to dict
     dict_output_ml1 = output_ml1_to_dict(dates=dates, values=output_ml1[0,:].tolist())
     
-    # output_ml1 = output_ml1[:,-input_size_ml2:]
-    # input_ml2 = np.expand_dims(output_ml1, axis=-1)
-    # input_ml2 = to_tensor(input_ml2)
-    # output_ml2 = inference_model(model_ml2, input_ml2)
-    # print(output_ml2.shape)
-    
+    output_ml1 = output_ml1[:,-input_size_ml2:]
+    input_ml2 = np.expand_dims(output_ml1, axis=-1)
+    input_ml2 = to_tensor(input_ml2)
+    output_ml2 = inference_model(model_ml2, input_ml2)
+    print(output_ml2.shape)
+
+    #Convert output ml2 to dict
+    dict_output_ml2 = output_ml2_to_dict(dates[-input_size_ml2:],output_ml2)
     # #convert the array to tiff
     # filenametif = f"Prediction flood {start_run_pred}"
     # filenametif = re.sub(r'[:,.-]', '', filenametif)
@@ -75,26 +77,17 @@ def do_prediction():
     
     end_run_pred = get_current_datetime()
     #timestamp_end = end_run_pred.strftime('%Y-%m-%d_%H-%M-%S')
-    return start_run_pred, end_run_pred, dict_output_ml1
+    return start_run_pred, end_run_pred, dict_output_ml1, dict_output_ml2
 
 @app.post("/predict")
 async def predict():
-    start_run_pred, end_run_pred, dict_output_ml1 = do_prediction()
+    start_run_pred, end_run_pred, dict_output_ml1, dict_output_ml2 = do_prediction()
     #return {"Output": outputs.tolist(),"Prediction Time": start_run_pred, "Prediction time Finished": end_run_pred}
-    return {"Prediction Time Start": str(start_run_pred), "Prediction time Finished": str(end_run_pred), "Prediction Output": dict_output_ml1}
-
-# #Define data pipeline endpoint
-# @app.post("/get_input_data")
-# async def get_input_data():
-#     #download latest data
-#     get_data_gsmap_now(path_data="data_gsmap_now")
-
-#     #get precipitation value for input modelling
-#     precip_val = get_input_precip_data(path_data="data_gsmap_now/gsmap_now_palu", days=3)
-
-#     prec_dict = {"Precip Value": precip_val.tolist()}
-    
-#     return prec_dict
+    output = {"Prediction Time Start": str(start_run_pred), 
+              "Prediction time Finished": str(end_run_pred), 
+              "Prediction Output ml1": dict_output_ml1,
+              "Prediction Output ml2": dict_output_ml2}
+    return output
 
 # Run the application using the following command:
 # uvicorn app:app --reload
