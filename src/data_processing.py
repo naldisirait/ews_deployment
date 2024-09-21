@@ -1,64 +1,141 @@
 import numpy as np
 import torch
+import pandas as pd
+import json
 
-def data_prep_for_inference_fc(input_data):
-    #convert data into array
-    inputs = np.array(input_data)
-    
-    #sum all grid data
-    inputs = np.sum(inputs, axis = (1,2))
-    inputs = np.expand_dims(inputs, axis = 0)
-    
-    #convert array to tensor
-    inputs = torch.tensor(inputs, dtype=torch.float32)
-
-    return inputs
-
-def create_lstm_dataset(data, input_sequence_len, target_sequence_len):
+def get_transformation_config(path_config_stas_to_grid, path_config_grid_to_subdas):
     """
-    Prepare time series data for LSTM model with variable input and target sequence lengths.
+    function to get the configuration of percentage distributed station to grid and grid to subdas
+    this function is static, since the value is constant
+    """
+    # Open the stasiun_to_grid.json file and load the data
+    with open(path_config_stas_to_grid, 'r') as file:
+        pct_stasiun_at_grid = json.load(file)
+    
+    # Open the stasiun_to_grid.json file and load the data
+    with open(path_config_grid_to_subdas, 'r') as file:
+        pct_gsmap_at_subbasin = json.load(file)
+    
+    return pct_stasiun_at_grid, pct_gsmap_at_subbasin
 
-    Parameters:
-    data (np.ndarray or list): The time series data.
-    input_sequence_len (int): The number of time steps in each input sequence.
-    target_sequence_len (int): The number of time steps in each target sequence.
+def get_prec_stas_from_data_api(data, stasiun):
+    """
+    function to retrieve rainfall value from a dataframe
+    Args:
+        data (dataframe): dataframe one time from big lake
+        stasiun (string): stasiun name
+    Retruns:
+        prec_val(float): precipitation value 
+    """
+    prec_val = data[data['name']==stasiun]['rainfall'].values
+    return prec_val
 
+def transform_station_to_grided(config_pct, data):
+    """
+    Function to transform station precipitation into grided data
+    Args:
+        config_pct (json file): file contains percentage of each station contribute to each grid
     Returns:
-    np.ndarray: Array containing the input sequences.
-    np.ndarray: Array containing the target sequences.
+        data: grided precipitation data
     """
+    precip = np.zeros((14,17)).reshape(-1)
+    for idx,val in config_pct.items():
+        prec_total = 0 
+        stasiuns = val['nama_stasiun']
+        pcts = val['percentage']
+        for stasiun,pct in zip(stasiuns,pcts):
+            prec_value = get_prec_stas_from_data_api(data,stasiun)
+            prec_value = prec_value * (pct/100)
+            prec_total+=prec_value
+        precip[int(idx)] = prec_total
+    precip = np.reshape(precip, (14,17))
+    return precip
+    
+def transform_grided_to_subdas(pct, prec_grid):
+    """
+    Function to conver grided precipitation data into precipitation at each subdas 
+    
+    Args:
+        pct(json file): a dictionary contains an information of percentage every grid to each subdas
+        prec_grid(np.array): an array of precipitation
+    
+    Returns:
+        prec_subdas(dict): a dictionary {"subdas_name": [prec_value]}        
+    """
+    prec_grid = prec_grid.reshape(-1)
+    prec_subbdas = {}
+    for key,val in pct.items():
+        idx = val['index']
+        pct = np.array(val['percentage'])
+        total_prec = prec_grid[idx] * (pct/100)
+        prec_subbdas[key] = [np.sum(total_prec)]
+    return prec_subbdas
+    
+def prec_subdas_to_tensor(all_prec_subdas):
+    """
+    function to convert dictionary subdas data into tensor for the input of ML1
+    Args:
+        all_prec_subdas(dict): precipitation data at each subdas
+    Returns:
+        tensor_prec (torch.tensor): flatten precipitation data
+    """
+    data = []
+    for key,val in all_prec_subdas.items():
+        data.extend(val)
     data = np.array(data)
-    X, y = [], []
-    for i in range(len(data) - input_sequence_len - target_sequence_len + 1):
-        X.append(data[i:i + input_sequence_len])
-        y.append(data[i + input_sequence_len:i + input_sequence_len + target_sequence_len])
+    tensor_prec = torch.tensor(data, dtype = torch.float32)
+    return tensor_prec
 
-    X,y = np.array(X), np.array(y)
-    # Convert NumPy array to PyTorch tensor
-    X = torch.tensor(X, dtype=torch.float32)
-    X = X.unsqueeze(-1)  # Adds a dimension at the last position
+def get_presubdas_per_time(station_to_grided_config,grided_to_subdas_config, data_input, data_input_name):
+    # 1. Check the input data name
+    if data_input_name == "Stasiun":
+        grided_data = transform_station_to_grided(station_to_grided_config, data_input)
+    elif data_input_name == "Satelit":
+        grided_data = data_input
+    else:
+        return None
+    #2. Convert prec grided into subDAS
+    prec_subdas = transform_grided_to_subdas(grided_to_subdas_config, grided_data)
     
-    # Convert NumPy array to PyTorch tensor
-    y = torch.tensor(y, dtype=torch.float32)
-    y = y.unsqueeze(-1)  # Adds a dimension at the last position
+    return grided_data, prec_subdas 
 
-    return X,y
-
-def seperate_train_test_sequence(data, train_size):
+def combine_dict(dict1,dict2):
     """
-    Parameters:
-    data: array like, time series data
-    train_size: float, the size of training data
+    function to combine dict, because the data transformation script is made for one time data.
+    so we need to combine all time data
+    Args:
+        dict1(dict) : base dictionary
+        dict2(dict): dict of subdas that we want to add to the dict1
 
     Returns:
-    data_train: array like, time series data for training
-    data_test: array like, time series data for testing
-    """
-    #get thhe index of the last training data
-    idx_train_end = int(len(data) * train_size)
+        dict1 (dict): combined dictionary
 
-    #slice the data
-    data_train = data[0:idx_train_end]
-    data_test = data[idx_train_end:]
-    
-    return data_train, data_test
+    """
+    for key,val in dict2.items():
+        dict1[key].extend(val)
+    return dict1
+
+def get_input_ml1(ingested_data,ingested_data_name,path_config_stas_to_grid,path_config_grid_to_subdas):
+    """
+    function to get the input of ml1
+    Args:
+        ingested_data(dict): N hours precipitation data from big lake
+    Returns:
+        tensor_input (tensor): flatten all the subdas precipitation data 
+    """
+    station_to_grided_config,grided_to_subdas_config = get_transformation_config(path_config_stas_to_grid, path_config_grid_to_subdas)
+    all_time_prec_subdas = {}
+    all_grided_data = []
+    for n,(key,val) in enumerate(ingested_data.items()):
+        
+        grided_data, prec_subdas = get_presubdas_per_time(station_to_grided_config=station_to_grided_config,
+                                                          grided_to_subdas_config=grided_to_subdas_config,
+                                                          data_input = val,
+                                                         data_input_name = ingested_data_name)
+        all_grided_data.append(grided_data)
+        if n == 0:
+            all_time_prec_subdas = prec_subdas
+        else:
+            all_time_prec_subdas = combine_dict(all_time_prec_subdas,prec_subdas)
+    flatten_tensor_input = prec_subdas_to_tensor(all_time_prec_subdas)
+    return all_grided_data, flatten_tensor_input
