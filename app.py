@@ -60,7 +60,7 @@ def do_prediction():
     print(output_ml1.shape)
 
     # #Convert output ml1 to dict
-    dict_output_ml1 = output_ml1_to_dict(dates=dates, values=output_ml1[0,:].tolist())
+    dict_output_ml1 = output_ml1_to_dict(dates=dates, output_ml1=output_ml1[0,:].tolist())
     
     output_ml1 = output_ml1[:,-input_size_ml2:]
     input_ml2 = np.expand_dims(output_ml1, axis=-1)
@@ -69,7 +69,7 @@ def do_prediction():
     print(output_ml2.shape)
 
     #Convert output ml2 to dict
-    dict_output_ml2 = output_ml2_to_dict(dates[-input_size_ml2:],output_ml2)
+    dict_output_ml2 = output_ml2_to_dict(dates=dates[-input_size_ml2:],output_ml2=output_ml2)
     # #convert the array to tiff
     # filenametif = f"Prediction flood {start_run_pred}"
     # filenametif = re.sub(r'[:,.-]', '', filenametif)
