@@ -23,6 +23,7 @@ if __name__ == "__main__":
                                                    path_config_stas_to_grid,
                                                    path_config_grid_to_subdas)
         if input_ml1 != None:
+            print(input_ml1.shape)
             print("Successfully process the input data for ML1")
         else:
             print("Data is not available")
