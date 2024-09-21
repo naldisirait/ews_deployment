@@ -22,8 +22,10 @@ def generate_next_24_hours(start_date_str):
     return next_24_hours
 
 def output_ml1_to_dict(dates, values):
+    print(type(dates), dates)
     next_24hr = generate_next_24_hours(dates[-1])
     dates = dates.extend(next_24hr)
+    print(type(dates), dates)
     time_data = dates[-len(values):]
     dict_output_ml1 = {"name": "wl", 
             "measurement_type":"forecast",
