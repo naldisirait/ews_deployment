@@ -126,8 +126,9 @@ def get_input_ml1(ingested_data,ingested_data_name,path_config_stas_to_grid,path
     station_to_grided_config,grided_to_subdas_config = get_transformation_config(path_config_stas_to_grid, path_config_grid_to_subdas)
     all_time_prec_subdas = {}
     all_grided_data = []
+    dates = []
     for n,(key,val) in enumerate(ingested_data.items()):
-        
+        dates.append(key)
         grided_data, prec_subdas = get_presubdas_per_time(station_to_grided_config=station_to_grided_config,
                                                           grided_to_subdas_config=grided_to_subdas_config,
                                                           data_input = val,
@@ -140,4 +141,4 @@ def get_input_ml1(ingested_data,ingested_data_name,path_config_stas_to_grid,path
     flatten_tensor_input = prec_subdas_to_tensor(all_time_prec_subdas)
     len_flat = len(flatten_tensor_input)
     flatten_tensor_input = flatten_tensor_input.reshape(1,len_flat)
-    return all_grided_data, flatten_tensor_input
+    return all_grided_data, dates, flatten_tensor_input

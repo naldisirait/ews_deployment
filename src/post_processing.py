@@ -1,6 +1,30 @@
 import numpy as np
 import json
 import torch
+from datetime import datetime, timedelta
+
+def generate_next_24_hours(start_date):
+    """
+    Generate the next 24 hourly timestamps starting from the given date.
+    
+    Args:
+        start_date (datetime): The starting date and time.
+    
+    Returns:
+        list: A list of datetime objects representing the next 24 hours.
+    """
+    next_24_hours = [start_date + timedelta(hours=i) for i in range(1, 25)]
+    return next_24_hours
+
+def output_ml1_to_dict(dates, values):
+    next_24hr = generate_next_24_hours(dates[-1])
+    dates = dates.extend(next_24hr)
+    time_data = dates[-len(values):]
+    dict_output_ml1 = {"name": "wl", 
+            "measurement_type":"forecast",
+            "time_data": time_data,
+            "data": values}
+    return dict_output_ml1
 
 def convert_array_to_tif(data_array, filename, meta=None):
     """
@@ -38,6 +62,8 @@ def convert_array_to_tif(data_array, filename, meta=None):
     with rasterio.open(filename, 'w', **meta) as dst:
         dst.write(data_array, 1)
         print(f"Successfully saved to {filename}")
+
+    
 
 def output_ml1_to_json(values, filename, prediction_time):
 

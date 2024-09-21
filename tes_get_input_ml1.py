@@ -18,7 +18,7 @@ if __name__ == "__main__":
         else:
             raise ValueError("Cannot ingest the data")
         
-        all_grided_data, input_ml1 = get_input_ml1(ingested_data,
+        all_grided_data, dates, flatten_tensor_input = get_input_ml1(ingested_data,
                                                    ingested_data_name,
                                                    path_config_stas_to_grid,
                                                    path_config_grid_to_subdas)
