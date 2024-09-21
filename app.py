@@ -79,9 +79,9 @@ def do_prediction():
 
 @app.post("/predict")
 async def predict():
-    start_run_pred, end_run_pred = do_prediction()
+    start_run_pred, end_run_pred, dict_output_ml1 = do_prediction()
     #return {"Output": outputs.tolist(),"Prediction Time": start_run_pred, "Prediction time Finished": end_run_pred}
-    return {"Prediction Time Start": str(start_run_pred), "Prediction time Finished": str(end_run_pred)}
+    return {"Prediction Time Start": str(start_run_pred), "Prediction time Finished": str(end_run_pred), "Prediction Output": dict_output_ml1}
 
 # #Define data pipeline endpoint
 # @app.post("/get_input_data")
