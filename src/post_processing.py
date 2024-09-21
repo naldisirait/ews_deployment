@@ -5,26 +5,26 @@ from datetime import datetime, timedelta
 
 def generate_next_24_hours(start_date_str):
     """
-    Generate the next 24 hourly timestamps starting from the given date string.
+    Generate the next 24 hourly timestamps as strings starting from the given date string.
     
     Args:
         start_date_str (str): The starting date as a string.
     
     Returns:
-        list: A list of datetime objects representing the next 24 hours.
+        list: A list of strings representing the next 24 hours.
     """
     # Convert the start_date_str to a datetime object
     start_date = datetime.strptime(start_date_str, '%Y-%m-%d %H:%M:%S')
 
     # Generate the next 24 hours
-    next_24_hours = [start_date + timedelta(hours=i) for i in range(1, 25)]
+    next_24_hours = [(start_date + timedelta(hours=i)).strftime('%Y-%m-%d %H:%M:%S') for i in range(1, 25)]
     
     return next_24_hours
 
 def output_ml1_to_dict(dates, values):
     print(type(dates), dates)
     next_24hr = generate_next_24_hours(dates[-1])
-    dates = dates.extend(next_24hr)
+    dates = dates + next_24hr
     print(type(dates), dates)
     time_data = dates[-len(values):]
     dict_output_ml1 = {"name": "wl", 
