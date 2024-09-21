@@ -10,7 +10,7 @@ if __name__ == "__main__":
         path_config_grid_to_subdas = "/opt/ews/ews_deployment/configs/configuration of grid to subdas.json"
 
         ingested_data_name = "Stasiun"
-        hours = 72
+        hours = 144
         ingested_data = get_precipitation_from_big_lake(hours)
 
         if ingested_data != None:
