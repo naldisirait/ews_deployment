@@ -2,7 +2,7 @@ from src.data_ingesting import get_precipitation_from_big_lake
 
 if __name__ == "__main__":
     try:
-        prec = get_precipitation_from_big_lake(10)
+        prec = get_precipitation_from_big_lake()
         if prec:
             print("Successfully ingested the data")
         else:
