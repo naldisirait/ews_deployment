@@ -3,17 +3,22 @@ import json
 import torch
 from datetime import datetime, timedelta
 
-def generate_next_24_hours(start_date):
+def generate_next_24_hours(start_date_str):
     """
-    Generate the next 24 hourly timestamps starting from the given date.
+    Generate the next 24 hourly timestamps starting from the given date string.
     
     Args:
-        start_date (datetime): The starting date and time.
+        start_date_str (str): The starting date as a string.
     
     Returns:
         list: A list of datetime objects representing the next 24 hours.
     """
+    # Convert the start_date_str to a datetime object
+    start_date = datetime.strptime(start_date_str, '%Y-%m-%d %H:%M:%S')
+
+    # Generate the next 24 hours
     next_24_hours = [start_date + timedelta(hours=i) for i in range(1, 25)]
+    
     return next_24_hours
 
 def output_ml1_to_dict(dates, values):
