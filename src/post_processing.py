@@ -21,17 +21,24 @@ def generate_next_24_hours(start_date_str):
     
     return next_24_hours
 
-def output_ml1_to_dict(dates, values):
-    print(type(dates), dates)
+def output_ml1_to_dict(dates, output_ml1):
     next_24hr = generate_next_24_hours(dates[-1])
     dates = dates + next_24hr
-    print(type(dates), dates)
-    time_data = dates[-len(values):]
+    time_data = dates[-len(output_ml1):]
     dict_output_ml1 = {"name": "wl", 
             "measurement_type":"forecast",
             "time_data": time_data,
-            "data": values}
-    return dict_output_ml1
+            "data": output_ml1}
+    return dates, dict_output_ml1
+
+def output_ml2_to_dict(dates,output_ml2):
+    dict_output_ml2 = {
+        "name": "max_depth",
+        "start_date": dates[0],
+        "end_date": dates[-1],
+        "inundation": output_ml2.tolist()
+    }
+    return dict_output_ml2
 
 def convert_array_to_tif(data_array, filename, meta=None):
     """
