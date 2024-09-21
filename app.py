@@ -60,7 +60,7 @@ def do_prediction():
     print(output_ml1.shape)
 
     # #Convert to dict
-    # dict_output_ml1 = output_ml1_to_dict(dates=dates, values=output_ml1)
+    dict_output_ml1 = output_ml1_to_dict(dates=dates, values=output_ml1[0,:].tolist())
     
     # output_ml1 = output_ml1[:,-input_size_ml2:]
     # input_ml2 = np.expand_dims(output_ml1, axis=-1)
@@ -75,7 +75,7 @@ def do_prediction():
     
     end_run_pred = get_current_datetime()
     #timestamp_end = end_run_pred.strftime('%Y-%m-%d_%H-%M-%S')
-    return start_run_pred, end_run_pred
+    return start_run_pred, end_run_pred, dict_output_ml1
 
 @app.post("/predict")
 async def predict():
