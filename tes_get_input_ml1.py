@@ -10,9 +10,14 @@ if __name__ == "__main__":
         path_config_grid_to_subdas = "/opt/ews/ews_deployment/configs/configuration of grid to subdas.json"
 
         ingested_data_name = "Stasiun"
-        ingested_data = get_precipitation_from_big_lake(72)
-        print("Successfully ingested the data")
+        hours = 72
+        ingested_data = get_precipitation_from_big_lake(hours)
 
+        if ingested_data != None:
+            print("Successfully ingested the data")
+        else:
+            raise ValueError, "Cannot ingest the data"
+        
         all_grided_data, input_ml1 = get_input_ml1(ingested_data,
                                                    ingested_data_name,
                                                    path_config_stas_to_grid,
