@@ -138,4 +138,6 @@ def get_input_ml1(ingested_data,ingested_data_name,path_config_stas_to_grid,path
         else:
             all_time_prec_subdas = combine_dict(all_time_prec_subdas,prec_subdas)
     flatten_tensor_input = prec_subdas_to_tensor(all_time_prec_subdas)
+    len_flat = len(flatten_tensor_input)
+    flatten_tensor_input = flatten_tensor_input.reshape(1,len_flat)
     return all_grided_data, flatten_tensor_input
