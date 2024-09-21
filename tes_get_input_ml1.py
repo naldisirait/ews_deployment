@@ -16,7 +16,7 @@ if __name__ == "__main__":
         if ingested_data != None:
             print("Successfully ingested the data")
         else:
-            raise ValueError, "Cannot ingest the data"
+            raise ValueError("Cannot ingest the data")
         
         all_grided_data, input_ml1 = get_input_ml1(ingested_data,
                                                    ingested_data_name,
