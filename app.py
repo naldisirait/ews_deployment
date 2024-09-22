@@ -66,6 +66,7 @@ def do_prediction():
     input_ml2 = np.expand_dims(output_ml1, axis=-1)
     input_ml2 = to_tensor(input_ml2)
     output_ml2 = inference_model(model_ml2, input_ml2)
+    output_ml2 = output_ml2[0,:].reshape(3078,2019)
     print(output_ml2.shape)
 
     #Convert output ml2 to dict
