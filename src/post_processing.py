@@ -21,13 +21,14 @@ def generate_next_24_hours(start_date_str):
     
     return next_24_hours
 
-def output_ml1_to_dict(dates, output_ml1):
+def output_ml1_to_dict(dates, output_ml1, precipitation):
     next_24hr = generate_next_24_hours(dates[-1])
     dates = dates + next_24hr
     time_data = dates[-len(output_ml1):]
     dict_output_ml1 = {"name": "wl", 
             "measurement_type":"forecast",
             "time_data": time_data,
+            "precipitation": precipitation,
             "data": output_ml1}
     return dates, dict_output_ml1
 

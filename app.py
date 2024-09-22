@@ -55,12 +55,14 @@ def do_prediction():
                                                    ingested_data_name,
                                                    path_config_stas_to_grid,
                                                    path_config_grid_to_subdas)
+    
+    all_grided_data = np.array(all_grided_data)
 
     output_ml1 = inference_model(model_ml1,input_ml1)
     print(output_ml1.shape)
 
     # #Convert output ml1 to dict
-    dict_output_ml1 = output_ml1_to_dict(dates=dates, output_ml1=output_ml1[0,:].tolist())
+    dict_output_ml1 = output_ml1_to_dict(dates=dates, output_ml1=output_ml1[0,:].tolist(), precipitation=all_grided_data.tolist())
     
     output_ml1 = output_ml1[:,-input_size_ml2:]
     input_ml2 = np.expand_dims(output_ml1, axis=-1)
