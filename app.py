@@ -1,20 +1,14 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from pydantic import BaseModel
-import torch
-import torch.nn as nn
 from typing import List
 import numpy as np
 from datetime import datetime
-import re
 
-#import modul from this projects
-from models.discharge.FullyConnectedModel import FullyConnectedModel
-
-from src.gsmap_data_pipeline import get_input_precip_data
+#import modul from this project
 from src.data_processing import get_input_ml1
-from src.data_ingesting import get_precipitation_from_big_lake
+from src.data_ingesting import get_prec_from_big_lake
 from src.utils import inference_model,to_tensor
-from src.post_processing import convert_array_to_tif, output_ml1_to_json, output_ml1_to_dict, output_ml2_to_dict
+from src.post_processing import output_ml1_to_dict, output_ml2_to_dict
 
 def get_current_datetime():
     # Get the current date and time
@@ -49,8 +43,7 @@ def do_prediction():
     path_config_stas_to_grid = "/opt/ews/ews_deployment/configs/configuration of stasiun to grid.json"
     path_config_grid_to_subdas = "/opt/ews/ews_deployment/configs/configuration of grid to subdas.json"
 
-    ingested_data_name = "Stasiun"
-    ingested_data = get_precipitation_from_big_lake(hours)
+    ingested_data_name, ingested_data = get_prec_from_big_lake(hours)
 
     #3. Inference ML1
     all_grided_data, dates, input_ml1 =  get_input_ml1(ingested_data,

@@ -1,15 +1,145 @@
 import re
+import xarray as xr
+import numpy as np
 from datetime import datetime, timedelta
 import os
+import pickle
 import pandas as pd
 
 # os.environ['HADOOP_HOME'] = '/etc/hadoop'
 # os.environ['HADOOP_CONF_DIR'] = '/etc/hadoop/conf'
 
-def get_gsmap_from_big_lake():
-    pass
+def get_prec_from_big_lake(hours):
+    ingested_data = get_prec_stasiun_from_big_lake(hours)
+    if ingested_data != None:
+        ingested_name = "Stasiun"
+    else:
+        ingested_data = get_prec_gsmap_from_big_lake(hours)
+        ingested_name = "Satelit"
+    return ingested_name, ingested_data
 
+def get_hdfs_path(date):
+    date_str = date.strftime('%Y%m%d.%H%M')  # Format the date as 'YYYYMMDD.HHMM'
+    hdfs_path = f"hdfs://master-01.bnpb.go.id:8020/user/warehouse/JAXA/curah_hujan/{date.strftime('%Y/%m/%d')}/gsmap_now_rain.{date_str}.nc"
+    return hdfs_path
 
+def slice_data_to_palu(xr_data):
+    #potong data hanya pada bagian DAS Palu saja
+    left, right, top, bottom = 119.1499, 120.75, -0.5499, -1.85
+    xr_palu = xr_data.sel(Latitude=slice(bottom, top), Longitude=slice(left, right))
+    return xr_palu
+
+def get_prec_only_palu(file_path):
+    ds = xr.open_dataset(file_path)
+    ds_palu = slice_data_to_palu(ds)
+    # Flip the latitude dimension (reverse the order)
+    ds_palu = ds_palu.isel(lat=slice(None, None, -1))
+    prec_values = ds_palu['hourlyPrecipRateGC'][0].values
+    if prec_values.shape != (14,17):
+        prec_values = np.zeros((14,17))
+    return prec_values
+
+def get_grided_prec_palu(hdfs_path):
+    from pyspark.sql import SparkSession
+    filename = hdfs_path[-31:]
+    local_path = f'data/gsmap/{filename}'
+    
+    spark = SparkSession.builder \
+        .appName("master") \
+        .config("spark.hadoop.hadoop.security.authentication", "kerberos") \
+        .config("spark.hadoop.hadoop.security.authorization", "true") \
+        .config("spark.security.credentials.hive.enabled","false") \
+        .config("spark.security.credentials.hbase.enabled","false") \
+        .enableHiveSupport().getOrCreate()
+    
+    # Mengakses FileSystem melalui JVM
+    hadoop_conf = spark.sparkContext._jsc.hadoopConfiguration()
+    fs = spark._jvm.org.apache.hadoop.fs.FileSystem.get(hadoop_conf)
+
+    # Membuat objek Path di HDFS dan lokal
+    hdfs_file_path = spark._jvm.org.apache.hadoop.fs.Path(hdfs_path)
+    local_file_path = spark._jvm.org.apache.hadoop.fs.Path(local_path)
+
+    # Gunakan FileUtil untuk menyalin dari HDFS ke sistem lokal
+    spark._jvm.org.apache.hadoop.fs.FileUtil.copy(fs, hdfs_file_path, spark._jvm.org.apache.hadoop.fs.FileSystem.getLocal(hadoop_conf), local_file_path, False, hadoop_conf)
+    prec_val_palu = get_prec_only_palu(local_path)
+    os.remove(local_path)
+    return prec_val_palu
+    
+def open_pickle_gsmap(file_path):
+    with open(file_path, 'rb') as file:
+        data = pickle.load(file)
+    return data
+
+def dump_pickle_gsmap(data,file_path):
+    with open(file_path, 'wb') as file:
+        pickle.dump(data,file_path)
+
+def generated_half_hourly_dates_backwards(total_generated):
+    # Step 1: Get the current date and time
+    current_date = datetime.now()
+    # Step 2: Adjust the current time to the nearest 00 or 30 backward
+    minute = current_date.minute
+    if minute >= 30:
+        # If the current minute is 30 or above, round down to 30
+        adjusted_date = current_date.replace(minute=30, second=0, microsecond=0)
+    else:
+        # If the current minute is below 30, round down to 00
+        adjusted_date = current_date.replace(minute=0, second=0, microsecond=0)
+    # Step 3: Generate total_generated half-hourly dates backward, from the adjusted time
+    generated_dates = [adjusted_date - timedelta(minutes=30 * i) for i in range(total_generated)]
+    # Step 4: Reverse the list to have the latest date at the last index (oldest to newest)
+    generated_dates.reverse()
+    return generated_dates
+
+def convert_half_hourly_gsmap_prec_to_hourly(month_gsmap_data):
+    #Step 1: Create a new dictionary for hourly data
+    hourly_data_dict = {}
+
+    #Convert string keys to datetime objects for easier manipulation
+    data_dict_datetime_keys = {datetime.strptime(k, '%Y-%m-%d %H:%M:%S'): v for k, v in month_gsmap_data.items()}
+    
+    #Sort the dictionary by datetime keys (in case it's unordered)
+    sorted_dates = sorted(data_dict_datetime_keys.keys())
+    
+    # Step 3: Iterate through the sorted dates and combine every two consecutive half-hour intervals
+    for i in range(0, len(sorted_dates), 2):
+        if i + 1 < len(sorted_dates):
+            # Get the two consecutive 2D arrays
+            date1 = sorted_dates[i]
+            date2 = sorted_dates[i + 1]
+    
+            array1 = data_dict_datetime_keys[date1]
+            array2 = data_dict_datetime_keys[date2]
+    
+            # Step 4: Average the two arrays (element-wise) to create hourly data
+            hourly_array = (array1 + array2) / 2
+    
+            # Step 5: Create a new key representing the hourly timestamp (use the second date of the pair)
+            new_key = date2.strftime('%Y-%m-%d %H:%M:%S')
+    
+            # Step 6: Add the hourly array to the new dictionary
+            hourly_data_dict[new_key] = hourly_array
+    return hourly_data_dict
+
+def get_prec_gsmap_from_big_lake(hours):
+    gsmap_pickle_path = "/data/gsmap/gsmap_latest_month.pkl"
+    total_data = hours * 2
+    generated_dates = generated_half_hourly_dates_backwards(total_generated=total_data)
+    latest_month_gsmap_data = open_pickle_gsmap(file_path=gsmap_pickle_path)
+    new_month_gsmap_data = {}
+    for date in generated_dates:
+        date_str = date.strftime('%Y-%m-%d %H:%M:%S')
+        if date_str in latest_month_gsmap_data:
+            new_month_gsmap_data[date_str] = latest_month_gsmap_data[date_str]
+        else:
+            hdfs_path = get_hdfs_path(date=date)
+            new_month_gsmap_data[date_str] = get_grided_prec_palu(hdfs_path=hdfs_path)
+    hourly_gsmap_month_data = convert_half_hourly_gsmap_prec_to_hourly(new_month_gsmap_data)
+    dump_pickle_gsmap(data=new_month_gsmap_data,file_path=gsmap_pickle_path)
+    return hourly_gsmap_month_data
+
+    
 # Function to extract the timestamp using regex
 def extract_timestamp(file_path):
     # Regular expression to extract the timestamp from the file path
@@ -62,7 +192,7 @@ def check_last_hours_data(file_paths, hours):
     # Return results
     return result_list[-hours:]
 
-def check_availability(checked_date):
+def check_availability_stasiun(checked_date):
     half = int(len(checked_date)/2)
     n = 0
     for date, info in checked_date:
@@ -94,7 +224,7 @@ def list_hdfs_files_recursive(spark, path):
     
     return files
 
-def zeros_rainfall_for_miss_date():
+def dummy_zeros_rainfall_for_miss_date():
     dum = {'name': {0: 'CH TONGOA',
             1: 'SAMBO',
             2: 'CH INTAKE LEWARA',
@@ -104,7 +234,7 @@ def zeros_rainfall_for_miss_date():
     df = pd.DataFrame(dum)
     return df
 
-def get_precipitation_from_big_lake(hours):
+def get_prec_stasiun_from_big_lake(hours):
     """
     Function to get precipitation data from big lake, it will return the last hours if the data is available, 
     Args:
@@ -133,13 +263,13 @@ def get_precipitation_from_big_lake(hours):
    
     # Check if data is available for the last N hours
     checked_date = check_last_hours_data(json_files, hours)
-    availability = check_availability(checked_date)
+    availability = check_availability_stasiun(checked_date)
 
     if availability == "Available":
         prec_per_time = {}
         for n,(date,path) in enumerate(checked_date):
             if path == "miss":
-                prec_per_time[date] = zeros_rainfall_for_miss_date()
+                prec_per_time[date] = dummy_zeros_rainfall_for_miss_date()
             else:
                 json_data = spark.read.option("multiline","true").json(path)
                 df = json_data.toPandas()
@@ -148,48 +278,3 @@ def get_precipitation_from_big_lake(hours):
     else:
         output = None
     return output
-
-
-# def check_last_hours_data(file_paths, hours):
-#     """
-#     Function to checks if data is available for the last `N hours`. If all data is available, it returns the list of file paths for 
-#     those hours.If any data is missing, it reports the missing hours.
-    
-#     Args:
-#     file_paths (list): List of file paths
-#     hours (int): Integer defining the number of hours to check 
-    
-#     Returns: 
-#         tuple (str, list): List of file paths for the last `hours` if all data is available, or missing hours if not.
-#     """
-#     half = int(hours/2)
-#     # Get current time and the time 'hours' ago
-#     current_time = datetime.now().replace(minute=0, second=0, microsecond=0)
-#     start_time = current_time - timedelta(hours=hours)
-#     #print(f"current_time : {current_time }")
-#     #print(f"start_time : {start_time}")
-
-#     # Collect all timestamps and map them to their corresponding file paths
-#     available_files = [(extract_timestamp(path), path) for path in file_paths if extract_timestamp(path) is not None]
-
-#     # Filter only the files within the last 'hours'
-#     files_in_last_hours = [
-#         file_path for (timestamp, file_path) in available_files if start_time <= timestamp <= current_time
-#     ]
-#     files_in_last_hours = files_in_last_hours[-hours:]
-#     # Check if all the expected hours are available
-#     missing_hours = []
-#     for hour in range(hours + 1):  # Include the current hour
-#         expected_time = start_time + timedelta(hours=hour)
-#         if expected_time not in [ts for ts, path in available_files]:
-#             missing_hours.append(expected_time)
-
-#     # Return results
-#     if missing_hours:
-#         print("Data is missing for the following hours:")
-#         for missing_time in missing_hours:
-#             print(missing_time.strftime('%Y-%m-%d %H:%M:%S'))
-#         return ("Not available", missing_hours) # Indicate that not all data is available
-#     else:
-#         #print(f"All data for the last {hours} hours is available.")
-#         return ("Available", files_in_last_hours)

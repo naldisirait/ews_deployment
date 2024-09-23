@@ -86,7 +86,7 @@ def prec_subdas_to_tensor(all_prec_subdas):
     tensor_prec = torch.tensor(data, dtype = torch.float32)
     return tensor_prec
 
-def get_presubdas_per_time(station_to_grided_config,grided_to_subdas_config, data_input, data_input_name):
+def get_precsubdas_per_time(station_to_grided_config,grided_to_subdas_config, data_input, data_input_name):
     # 1. Check the input data name
     if data_input_name == "Stasiun":
         grided_data = transform_station_to_grided(station_to_grided_config, data_input)
@@ -115,21 +115,13 @@ def combine_dict(dict1,dict2):
         dict1[key].extend(val)
     return dict1
 
-def get_input_ml1(ingested_data,ingested_data_name,path_config_stas_to_grid,path_config_grid_to_subdas):
-    """
-    function to get the input of ml1
-    Args:
-        ingested_data(dict): N hours precipitation data from big lake
-    Returns:
-        tensor_input (tensor): flatten all the subdas precipitation data 
-    """
-    station_to_grided_config,grided_to_subdas_config = get_transformation_config(path_config_stas_to_grid, path_config_grid_to_subdas)
+def process_precip_from_stasiun(station_to_grided_config,grided_to_subdas_config,ingested_data,ingested_data_name):
     all_time_prec_subdas = {}
     all_grided_data = []
     dates = []
     for n,(key,val) in enumerate(ingested_data.items()):
         dates.append(key)
-        grided_data, prec_subdas = get_presubdas_per_time(station_to_grided_config=station_to_grided_config,
+        grided_data, prec_subdas = get_precsubdas_per_time(station_to_grided_config=station_to_grided_config,
                                                           grided_to_subdas_config=grided_to_subdas_config,
                                                           data_input = val,
                                                          data_input_name = ingested_data_name)
@@ -138,6 +130,35 @@ def get_input_ml1(ingested_data,ingested_data_name,path_config_stas_to_grid,path
             all_time_prec_subdas = prec_subdas
         else:
             all_time_prec_subdas = combine_dict(all_time_prec_subdas,prec_subdas)
+
+    return all_grided_data, dates, all_time_prec_subdas
+
+def process_precip_from_satelit(station_to_grided_config,grided_to_subdas_config,ingested_data,ingested_data_name):
+    pass
+
+
+def get_input_ml1(ingested_data,ingested_data_name,path_config_stas_to_grid,path_config_grid_to_subdas):
+    """
+    function to get the input of ml1
+    Args:
+        ingested_data(dict): N hours precipitation data from big lake
+        ingested_data_name(str): either Stasiun or Satelit
+        path_config_stas_to_grid(dict): configuration of distribution of stasiun to each grid
+        path_config_stas_to_grid(dict): configuration of distribution each grid to each subdas
+    Returns:
+        tensor_input (tensor): flatten all the subdas precipitation data 
+    """
+    station_to_grided_config,grided_to_subdas_config = get_transformation_config(path_config_stas_to_grid, path_config_grid_to_subdas)
+    if ingested_data_name == "Stasiun":
+        all_grided_data, dates, all_time_prec_subdas = process_precip_from_stasiun(station_to_grided_config=station_to_grided_config,
+                                                                               grided_to_subdas_config=grided_to_subdas_config,
+                                                                               ingested_data=ingested_data,
+                                                                               ingested_data_name=ingested_data_name)
+    elif ingested_data_name == "Satelit":
+        all_grided_data, dates, all_time_prec_subdas = 0
+    else:
+        return None
+
     flatten_tensor_input = prec_subdas_to_tensor(all_time_prec_subdas)
     len_flat = len(flatten_tensor_input)
     flatten_tensor_input = flatten_tensor_input.reshape(1,len_flat)
