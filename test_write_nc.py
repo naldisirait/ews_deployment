@@ -62,3 +62,6 @@ def run():
     spark._jvm.org.apache.hadoop.fs.FileUtil.copy(fs, hdfs_file_path, spark._jvm.org.apache.hadoop.fs.FileSystem.getLocal(hadoop_conf), local_file_path, False, hadoop_conf)
 
     print(f"File berhasil disalin ke: {local_path}")
+
+if __name__ == "__main__":
+    run()
