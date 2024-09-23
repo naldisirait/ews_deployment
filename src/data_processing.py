@@ -134,7 +134,22 @@ def process_precip_from_stasiun(station_to_grided_config,grided_to_subdas_config
     return all_grided_data, dates, all_time_prec_subdas
 
 def process_precip_from_satelit(station_to_grided_config,grided_to_subdas_config,ingested_data,ingested_data_name):
-    pass
+    all_time_prec_subdas = {}
+    all_grided_data = []
+    dates = []
+    for n,(key,val) in enumerate(ingested_data.items()):
+        dates.append(key)
+        grided_data, prec_subdas = get_precsubdas_per_time(station_to_grided_config=station_to_grided_config,
+                                                          grided_to_subdas_config=grided_to_subdas_config,
+                                                          data_input = val,
+                                                         data_input_name = ingested_data_name)
+        all_grided_data.append(grided_data)
+        if n == 0:
+            all_time_prec_subdas = prec_subdas
+        else:
+            all_time_prec_subdas = combine_dict(all_time_prec_subdas,prec_subdas)
+
+    return all_grided_data, dates, all_time_prec_subdas
 
 
 def get_input_ml1(ingested_data,ingested_data_name,path_config_stas_to_grid,path_config_grid_to_subdas):
@@ -155,10 +170,12 @@ def get_input_ml1(ingested_data,ingested_data_name,path_config_stas_to_grid,path
                                                                                ingested_data=ingested_data,
                                                                                ingested_data_name=ingested_data_name)
     elif ingested_data_name == "Satelit":
-        all_grided_data, dates, all_time_prec_subdas = 0
+        all_grided_data, dates, all_time_prec_subdas = process_precip_from_stasiun(station_to_grided_config=station_to_grided_config,
+                                                                               grided_to_subdas_config=grided_to_subdas_config,
+                                                                               ingested_data=ingested_data,
+                                                                               ingested_data_name=ingested_data_name)
     else:
         return None
-
     flatten_tensor_input = prec_subdas_to_tensor(all_time_prec_subdas)
     len_flat = len(flatten_tensor_input)
     flatten_tensor_input = flatten_tensor_input.reshape(1,len_flat)
