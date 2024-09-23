@@ -6,6 +6,10 @@ import pandas as pd
 # os.environ['HADOOP_HOME'] = '/etc/hadoop'
 # os.environ['HADOOP_CONF_DIR'] = '/etc/hadoop/conf'
 
+def get_gsmap_from_big_lake():
+    pass
+
+
 # Function to extract the timestamp using regex
 def extract_timestamp(file_path):
     # Regular expression to extract the timestamp from the file path
