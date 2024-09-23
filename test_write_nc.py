@@ -4,7 +4,28 @@ import os
 import pyarrow.fs as fs
 from pyspark.sql import SparkSession
 
-if __name__ == "__main__":
+def list_hdfs_files_recursive(spark, path):
+    hadoop = spark._jvm.org.apache.hadoop
+    fs = hadoop.fs.FileSystem
+    conf = hadoop.conf.Configuration()
+    conf.set("fs.defaultFS", "hdfs://master-01.bnpb.go.id:8020")
+    files = []
+    
+    def recursive_list_files(path):
+        try:
+            for f in fs.get(conf).listStatus(path):
+                files.append(str(f.getPath()))
+                if fs.get(conf).isDirectory(f.getPath()):
+                    recursive_list_files(f.getPath())
+        except Exception as e:
+            print("Error:", e)
+    
+    recursive_list_files(hadoop.fs.Path(path))
+    
+    return files
+
+def run():
+    from pyspark.sql import SparkSession
     spark = SparkSession.builder \
         .appName("master") \
         .config("spark.hadoop.hadoop.security.authentication", "kerberos") \
@@ -12,10 +33,22 @@ if __name__ == "__main__":
         .config("spark.security.credentials.hive.enabled","false") \
         .config("spark.security.credentials.hbase.enabled","false") \
         .enableHiveSupport().getOrCreate()
-    
+        
+    # Define the HDFS path
+    # hdfs_path = "/user/warehouse/SPLP/PUPR/curah_hujan/palu"
+    # hdfs_path = "/user/warehouse/SPLP/PUPR"
+    hdfs_path = "/user/warehouse/JAXA/curah_hujan"
+
+    # List HDFS files recursively
+    hdfs_files = list_hdfs_files_recursive(spark, hdfs_path)
+
+    nc_files = [i for i in hdfs_files if (".nc" in i)]
+
     # Path file di HDFS
-    hdfs_path = 'hdfs://master-01.bnpb.go.id:8020/user/warehouse/JAXA/curah_hujan/2021/12/06/gsmap_now_rain.20211206.0000.nc'
-    local_path = 'data/gsmap/gsmap_now_rain.20211206.0000.nc'
+    # hdfs_path = 'hdfs://master-01.bnpb.go.id:8020/user/warehouse/JAXA/curah_hujan/2021/12/06/gsmap_now_rain.20211206.0000.nc'
+    hdfs_path = nc_files[2]
+
+    local_path = 'data/gsmap/gsmap_now_rain.nc'
 
     # Mengakses FileSystem melalui JVM
     hadoop_conf = spark.sparkContext._jsc.hadoopConfiguration()
