@@ -121,5 +121,6 @@ def list_satelit_filenames():
         print(n,file)
 
 if __name__ == "__main__":
-    list_satelit_filenames()
+    do_prediction()
+    #list_satelit_filenames()
     
