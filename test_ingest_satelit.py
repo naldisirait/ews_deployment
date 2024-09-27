@@ -79,6 +79,45 @@ def do_prediction():
     print(f"ingested_data type {type(ingested_data_hms)}")
     print(f"Ingest data satelit sukses!")
 
+def list_hdfs_files_recursive(spark, path):
+    hadoop = spark._jvm.org.apache.hadoop
+    fs = hadoop.fs.FileSystem
+    conf = hadoop.conf.Configuration()
+    conf.set("fs.defaultFS", "hdfs://master-01.bnpb.go.id:8020")
+    files = []
+    
+    def recursive_list_files(path):
+        try:
+            for f in fs.get(conf).listStatus(path):
+                files.append(str(f.getPath()))
+                if fs.get(conf).isDirectory(f.getPath()):
+                    recursive_list_files(f.getPath())
+        except Exception as e:
+            print("Error:", e)
+    
+    recursive_list_files(hadoop.fs.Path(path))
+    
+    return files
+
+def list_satelit_filenames():
+    from pyspark.sql import SparkSession
+    spark = SparkSession.builder \
+        .appName("master") \
+        .config("spark.hadoop.hadoop.security.authentication", "kerberos") \
+        .config("spark.hadoop.hadoop.security.authorization", "true") \
+        .config("spark.security.credentials.hive.enabled","false") \
+        .config("spark.security.credentials.hbase.enabled","false") \
+        .enableHiveSupport().getOrCreate()
+        
+    # Define the HDFS path
+    # hdfs_path = "/user/warehouse/SPLP/PUPR/curah_hujan/palu"
+    # hdfs_path = "/user/warehouse/SPLP/PUPR"
+    hdfs_path = "/user/warehouse/JAXA/curah_hujan"
+
+    # List HDFS files recursively
+    hdfs_files = list_hdfs_files_recursive(spark, hdfs_path)
+    print(hdfs_files[-20:])
+
 if __name__ == "__main__":
-    do_prediction()
+    list_satelit_filenames()
     
