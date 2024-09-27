@@ -9,9 +9,9 @@ import torch
 from datetime import datetime
 
 #import modul from this project
-from src.data_processing import get_input_ml1, get_input_hms, convert_prec_grided_to_ch_wilayah
+from src.data_processing import get_input_ml1, get_input_hms, convert_prec_grided_to_ch_wilayah, open_json_file
 from src.data_ingesting import get_prec_from_big_lake
-from src.utils import inference_model, to_tensor, get_current_datetime
+from src.utils import inference_model, to_tensor, get_current_datetime, open_json_file
 from src.post_processing import output_ml1_to_dict, output_ml2_to_dict, ensure_jsonable
 
 def get_input_debit_sample(name):
@@ -66,7 +66,9 @@ def do_prediction():
     #2. Ingest Data input
     path_config_stas_to_grid = "/opt/ews/ews_deployment/configs/configuration of stasiun to grid.json"
     path_config_grid_to_subdas = "/opt/ews/ews_deployment/configs/configuration of grid to subdas.json"
-    #path_config_grid_to_df = "/opt/ews/ews_deployment/configs/configuration of grided to df.json"
+    path_config_grid_to_df = "/opt/ews/ews_deployment/configs/configuration of grided to df.json"
+    conf_grid_to_df = open_json_file(path_config_grid_to_df)
+    index_grided_chosen = conf_grid_to_df['indexes']
 
     ingested_data_name, ingested_data, runtime_ingest_data = get_prec_from_big_lake(hours)
     #ingested_data_name_hms, ingested_data_hms = get_prec_from_big_lake(hours_hms)
@@ -103,7 +105,7 @@ def do_prediction():
 
     #5. Bundle the Output
     #Convert output ml1 to dict
-    ch_wilayah = convert_prec_grided_to_ch_wilayah(all_grided_data)
+    ch_wilayah = convert_prec_grided_to_ch_wilayah(prec_grided=all_grided_data, idx_chosen=index_grided_chosen)
     dates, dict_output_ml1 = output_ml1_to_dict(dates=dates, output_ml1=output_ml1[0,:].tolist(), precipitation=ch_wilayah)
 
     #Convert output ml2 to dict

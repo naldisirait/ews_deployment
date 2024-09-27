@@ -2,7 +2,6 @@ import numpy as np
 import json
 import torch
 from datetime import datetime, timedelta
-
 import json
 import numpy as np
 import torch
@@ -67,17 +66,6 @@ def generate_next_24_hours(start_date_str):
     
     return next_24_hours
 
-# def output_ml1_to_dict(dates, output_ml1, precipitation):
-#     next_24hr = generate_next_24_hours(dates[-1])
-#     dates = dates + next_24hr
-#     time_data = dates[-len(output_ml1):]
-#     dict_output_ml1 = {"name": "wl", 
-#             "measurement_type":"forecast",
-#             "time_data": time_data,
-#             "precipitation": precipitation,
-#             "data": output_ml1}
-#     return dates, dict_output_ml1
-
 def output_ml1_to_dict(dates, output_ml1, precipitation):
     next_24hr = generate_next_24_hours(dates[-1])
     dates = dates + next_24hr
@@ -92,17 +80,6 @@ def output_ml1_to_dict(dates, output_ml1, precipitation):
         "data": output_ml1  # Ensure this is a list, already handled by output_ml1.tolist() before
     }
     return dates, dict_output_ml1
-
-
-# def output_ml2_to_dict(dates,output_ml2):
-#     output_ml2[output_ml2<0.2] = 0
-#     dict_output_ml2 = {
-#         "name": "max_depth",
-#         "start_date": dates[0],
-#         "end_date": dates[-1],
-#         "inundation": output_ml2.tolist()
-#     }
-#     return dict_output_ml2
 
 def output_ml2_to_dict(dates, output_ml2):
     output_ml2[output_ml2 < 0.2] = 0
@@ -177,13 +154,3 @@ def output_ml1_to_json(values, filename, prediction_time):
 
     except Exception as e:
         print(f"Failed to save JSON to {filename}: {e}")
-
-
-# def output_ml1_to_json(values, filename, prediction_time):
-
-#     data = {"Prediction Time":prediction_time,
-#             "Predictid Debit":values.tolist()}
-    
-#     # Write data to a JSON file
-#     with open(filename, "w") as json_file:
-#         json.dump(data, json_file, indent=4)

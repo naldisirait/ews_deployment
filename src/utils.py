@@ -3,6 +3,13 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from datetime import datetime, timedelta
 import torch
+import json
+
+def open_json_file(filepath):
+    # Open the json file
+    with open(filepath, 'r') as file:
+        data = json.load(file)
+    return data
 
 def get_current_datetime():
     # Get the current date and time
