@@ -11,7 +11,7 @@ from datetime import datetime
 #import modul from this project
 from src.data_processing import get_input_ml1, get_input_hms
 from src.data_ingesting import get_prec_from_big_lake
-from src.utils import inference_model,to_tensor
+from src.utils import inference_model, to_tensor
 from src.post_processing import output_ml1_to_dict, output_ml2_to_dict
 
 def get_input_debit_sample(name):
@@ -82,7 +82,6 @@ def do_prediction():
                                                    ingested_data_name,
                                                    path_config_stas_to_grid,
                                                    path_config_grid_to_subdas)
-    
     
     output_ml1 = inference_model(model_ml1,input_ml1)
     print(type(output_ml1), output_ml1.shape)

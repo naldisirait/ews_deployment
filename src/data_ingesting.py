@@ -5,18 +5,22 @@ from datetime import datetime, timedelta
 import os
 import pickle
 import pandas as pd
+import time
 
 # os.environ['HADOOP_HOME'] = '/etc/hadoop'
 # os.environ['HADOOP_CONF_DIR'] = '/etc/hadoop/conf'
 
 def get_prec_from_big_lake(hours):
+    tstart = time.time()
     ingested_data = get_prec_stasiun_from_big_lake(hours)
     if ingested_data != None:
         ingested_name = "Stasiun"
     else:
         ingested_data = get_prec_gsmap_from_big_lake(hours)
         ingested_name = "Satelit"
-    return ingested_name, ingested_data
+    tend = time.time()
+    runtime = tend - tstart
+    return ingested_name, ingested_data, runtime
 
 def get_hdfs_path(date):
     date_str = date.strftime('%Y%m%d.%H%M')  # Format the date as 'YYYYMMDD.HHMM'

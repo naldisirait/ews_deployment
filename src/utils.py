@@ -4,6 +4,12 @@ import pandas as pd
 from datetime import datetime, timedelta
 import torch
 
+def get_current_datetime():
+    # Get the current date and time
+    now = datetime.now()
+    # Format the date and time as YYYY-MM-DD HH:MM:SS
+    return now.strftime("%Y-%m-%d %H:%M:%S")
+
 def to_tensor(input_data, framework="pytorch"):
     """
     Convert input data to tensor with float type if it's not already in tensor format.
