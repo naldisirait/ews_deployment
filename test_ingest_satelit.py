@@ -78,4 +78,7 @@ def do_prediction():
     print(f"Ingested data runtime {runtime_ingest_data}")
     print(f"ingested_data type {type(ingested_data_hms)}")
     print(f"Ingest data satelit sukses!")
+
+if __name__ == "__main__":
+    do_prediction()
     
