@@ -50,6 +50,8 @@ from models.inundation.model_ml2  import load_model_ml2
 app = FastAPI()
 def do_prediction():
     tstart = time.time()
+    kasus = "Kasus 8"
+    dummy = False
     start_run_pred = get_current_datetime()
 
     #1. Define all constants and load models
@@ -91,8 +93,6 @@ def do_prediction():
 
     #4.1 Inference ML2 using output from ML1
     output_ml1 = output_ml1[:,-input_size_ml2:]
-    kasus = "Kasus 8"
-    dummy = True
     if dummy:
         output_ml1 = get_input_debit_sample(kasus)
     input_ml2 = np.expand_dims(output_ml1, axis=-1)
