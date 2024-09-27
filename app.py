@@ -25,7 +25,7 @@ def get_input_debit_sample(name):
         # Make sure 'debit' is a NumPy array
         if not isinstance(debit, np.ndarray):
             debit = np.array(debit)  # Convert to a NumPy array if it's not already
-
+        debit = debit.tolist()
         # Convert to a PyTorch tensor
         debit = torch.tensor(debit, dtype=torch.float32)
         #debit = torch.from_numpy(debit)
@@ -91,7 +91,7 @@ def do_prediction():
     #4.1 Inference ML2 using output from ML1
     output_ml1 = output_ml1[:,-input_size_ml2:]
     kasus = "Kasus 8"
-    dummy = False
+    dummy = True
     if dummy:
         output_ml1 = get_input_debit_sample(kasus)
     input_ml2 = np.expand_dims(output_ml1, axis=-1)
