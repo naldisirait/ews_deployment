@@ -2,7 +2,6 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import List
 import os
-from fastapi.encoders import jsonable_encoder
 import numpy as np
 import time
 import pickle
@@ -12,7 +11,7 @@ from datetime import datetime
 #import modul from this project
 from src.data_processing import get_input_ml1, get_input_hms, convert_prec_grided_to_ch_wilayah
 from src.data_ingesting import get_prec_from_big_lake
-from src.utils import inference_model, to_tensor
+from src.utils import inference_model, to_tensor, get_current_datetime
 from src.post_processing import output_ml1_to_dict, output_ml2_to_dict, ensure_jsonable
 
 def get_input_debit_sample(name):
@@ -38,12 +37,6 @@ def get_input_debit_sample(name):
         print(f"An error occurred: {e}")
         raise  # Re-raise the error after logging it
     return debit
-
-def get_current_datetime():
-    # Get the current date and time
-    now = datetime.now()
-    # Format the date and time as YYYY-MM-DD HH:MM:SS
-    return now.strftime("%Y-%m-%d %H:%M:%S")
 
 # Define input data model
 class InputData(BaseModel):
