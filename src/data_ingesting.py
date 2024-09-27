@@ -190,8 +190,9 @@ def get_prec_gsmap_from_big_lake(hours):
             else:
                 new_month_gsmap_data[date_str] = get_grided_prec_palu(hdfs_path=hdfs_path)
     hourly_gsmap_month_data = convert_half_hourly_gsmap_prec_to_hourly(new_month_gsmap_data)
-    dump_pickle_gsmap(data=new_month_gsmap_data,file_path=gsmap_pickle_path)
-    dump_pickle_gsmap(data=dict_missed_data_gsmap, file_path=missed_data_path)
+    if hours == 720:
+        dump_pickle_gsmap(data=new_month_gsmap_data,file_path=gsmap_pickle_path)
+        dump_pickle_gsmap(data=dict_missed_data_gsmap, file_path=missed_data_path)
     return hourly_gsmap_month_data
 
 # Function to extract the timestamp using regex
