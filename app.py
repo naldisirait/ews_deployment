@@ -121,10 +121,14 @@ def do_prediction():
 async def predict():
     start_run_pred, end_run_pred, dict_output_ml1, dict_output_ml2 = do_prediction()
     #return {"Output": outputs.tolist(),"Prediction Time": start_run_pred, "Prediction time Finished": end_run_pred}
-    output = {"Prediction Time Start": str(start_run_pred), 
-              "Prediction time Finished": str(end_run_pred), 
-              "Prediction Output ml1": dict_output_ml1,
-              "Prediction Output ml2": dict_output_ml2}
+    # output = {"Prediction Time Start": str(start_run_pred), 
+    #           "Prediction time Finished": str(end_run_pred), 
+    #           "Prediction Output ml1": dict_output_ml1,
+    #           "Prediction Output ml2": dict_output_ml2}
+    
+    output = {"Prediction Output ml1": dict_output_ml1,
+            "Prediction Output ml2": dict_output_ml2}
+    
     #json_compatible_output = jsonable_encoder(output)
     return output
 
