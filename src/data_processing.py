@@ -30,6 +30,15 @@ def get_input_hms(ingested_data,ingested_data_name, path_conf_grided_to_df,path_
     df = pd.DataFrame(dict_prec)
     return all_grided_data_hms,df 
 
+def convert_prec_grided_to_ch_wilayah(prec_grided, idx_chosen):
+    if isinstance(prec_grided, list):
+        prec_grided = np.array(prec_grided)
+    t = len(prec_grided)
+    prec_grided = np.reshape(prec_grided, (t,-1))
+    prec_grided = prec_grided[:,idx_chosen]
+    ch_wilayah = np.mean(prec_grided, axis = 1)
+    return ch_wilayah
+    
 def open_json_file(filepath):
     # Open the json file
     with open(filepath, 'r') as file:

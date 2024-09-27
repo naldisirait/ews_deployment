@@ -9,7 +9,7 @@ import torch
 from datetime import datetime
 
 #import modul from this project
-from src.data_processing import get_input_ml1, get_input_hms
+from src.data_processing import get_input_ml1, convert_prec_grided_to_ch_wilayah, get_input_hms
 from src.data_ingesting import get_prec_from_big_lake
 from src.utils import inference_model,get_current_datetime, to_tensor
 from src.post_processing import output_ml1_to_dict, output_ml2_to_dict, ensure_jsonable
@@ -98,7 +98,8 @@ def do_prediction():
 
     #5. Bundle the Output
     #Convert output ml1 to dict
-    dates, dict_output_ml1 = output_ml1_to_dict(dates=dates, output_ml1=output_ml1[0,:].tolist(), precipitation=all_grided_data)
+    ch_wilayah = convert_prec_grided_to_ch_wilayah(all_grided_data)
+    dates, dict_output_ml1 = output_ml1_to_dict(dates=dates, output_ml1=output_ml1[0,:].tolist(), precipitation=ch_wilayah)
 
     #Convert output ml2 to dict
     dict_output_ml2 = output_ml2_to_dict(dates=dates[-input_size_ml2:],output_ml2=output_ml2)
