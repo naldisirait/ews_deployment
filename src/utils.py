@@ -31,9 +31,10 @@ def to_tensor(input_data, framework="pytorch"):
     return datas
 
 def inference_model(model, X):
+    model.eval()
     with torch.no_grad():
         outputs = model(X)
-        outputs = outputs.numpy()
+        outputs = outputs.cpu().numpy()
     return outputs
 
 def generate_hourly_dates(start_time_str, n=145, m=71):
