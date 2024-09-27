@@ -130,7 +130,7 @@ def get_prec_gsmap_from_big_lake(hours):
     Returns:
         hourly_gsmap_month_data(dict): key(date): grided precip value
     """
-    gsmap_pickle_path = "/data/gsmap/gsmap_latest_month.pkl"
+    gsmap_pickle_path = "./data/gsmap/gsmap_latest_month.pkl"
     total_data = hours * 2
     generated_dates = generated_half_hourly_dates_backwards(total_generated=total_data)
     latest_month_gsmap_data = open_pickle_gsmap(file_path=gsmap_pickle_path)
@@ -202,10 +202,14 @@ def check_last_hours_data(file_paths, hours):
 def check_availability_stasiun(checked_date):
     half = int(len(checked_date)/2)
     n = 0
+    date_miss = []
     for date, info in checked_date:
         if info == "miss":
             n+=1
+            date_miss.append(date)
     if n >= half:
+        print(f"There are {n} missing data")
+        print(date_miss)
         output = "Not Available"
     else:
         output = "Available"
