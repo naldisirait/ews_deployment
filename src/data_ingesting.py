@@ -255,8 +255,7 @@ def check_availability_stasiun(checked_date):
             n+=1
             date_miss.append(date)
     if n >= half:
-        print(f"There are {n} missing data")
-        print(date_miss)
+        print(f"There are {n} missing data, switched to sateliite")
         output = "Not Available"
     else:
         output = "Available"
