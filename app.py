@@ -83,7 +83,6 @@ def do_prediction():
                                                    path_config_stas_to_grid,
                                                    path_config_grid_to_subdas)
     
-    print(type(input_ml1), input_ml1.shape)
     
     output_ml1 = inference_model(model_ml1,input_ml1)
     print(type(output_ml1), output_ml1.shape)
