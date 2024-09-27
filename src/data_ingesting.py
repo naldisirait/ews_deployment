@@ -78,7 +78,7 @@ def open_pickle_gsmap(file_path):
 
 def dump_pickle_gsmap(data,file_path):
     with open(file_path, 'wb') as file:
-        pickle.dump(data,file_path)
+        pickle.dump(data,file)
 
 def generated_half_hourly_dates_backwards(total_generated):
     # Step 1: Get the current date and time
@@ -138,8 +138,6 @@ def get_list_gsmap_now_from_biglake():
         .enableHiveSupport().getOrCreate()
         
     # Define the HDFS path
-    # hdfs_path = "/user/warehouse/SPLP/PUPR/curah_hujan/palu"
-    # hdfs_path = "/user/warehouse/SPLP/PUPR"
     hdfs_path = "/user/warehouse/JAXA/curah_hujan"
 
     # List HDFS files recursively
@@ -156,6 +154,7 @@ def get_prec_gsmap_from_big_lake(hours):
         hourly_gsmap_month_data(dict): key(date): grided precip value
     """
     gsmap_pickle_path = "./data/gsmap/gsmap_latest_month.pkl"
+    missed_data_path =  "./data/gsmap/missed_data.pkl"
     total_data = hours * 2
     generated_dates = generated_half_hourly_dates_backwards(total_generated=total_data)
     latest_month_gsmap_data = open_pickle_gsmap(file_path=gsmap_pickle_path)
@@ -172,6 +171,7 @@ def get_prec_gsmap_from_big_lake(hours):
         gsmap_now_needed.append(hdfs_path)
 
     missed_data = [file for file in gsmap_now_needed if file not in all_gsmap_now_data_in_biglake]
+    dict_missed_data_gsmap = {"missed data gsmap": missed_data}
     total_missed = len(missed_data)
     if len(missed_data) > int(total_data/2):
         print(f"There is {len(total_missed)} missing data from jaxa, then return None")
@@ -185,15 +185,15 @@ def get_prec_gsmap_from_big_lake(hours):
         else:
             hdfs_path = get_hdfs_path(date=date)
             if hdfs_path in missed_data:
-                print(f"Missing data replace with zeros, {hdfs_path}")
+                print(f"Missing data replaced with zeros, {hdfs_path}")
                 new_month_gsmap_data[date_str] = np.zeros((14,17))
             else:
                 new_month_gsmap_data[date_str] = get_grided_prec_palu(hdfs_path=hdfs_path)
     hourly_gsmap_month_data = convert_half_hourly_gsmap_prec_to_hourly(new_month_gsmap_data)
     dump_pickle_gsmap(data=new_month_gsmap_data,file_path=gsmap_pickle_path)
+    dump_pickle_gsmap(data=dict_missed_data_gsmap, file_path=missed_data_path)
     return hourly_gsmap_month_data
 
-    
 # Function to extract the timestamp using regex
 def extract_timestamp(file_path):
     # Regular expression to extract the timestamp from the file path
@@ -242,7 +242,6 @@ def check_last_hours_data(file_paths, hours):
             result_list.append((expected_time.strftime('%Y-%m-%d %H:%M:%S'), file_for_hour))
         else:
             result_list.append((expected_time.strftime('%Y-%m-%d %H:%M:%S'), "miss"))
-
     # Return results
     return result_list[-hours:]
 
