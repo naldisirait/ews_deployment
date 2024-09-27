@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from datetime import datetime, timedelta
-
 import torch
 
 def to_tensor(input_data, framework="pytorch"):
