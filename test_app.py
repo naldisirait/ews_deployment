@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import List
 import os
+import time
 import numpy as np
 import pickle
 import torch
@@ -42,7 +43,7 @@ def get_input_debit_sample(name):
     return debit
 
 def do_prediction():
-    cwd = os.getcwd()
+    tstart = time.time()
     start_run_pred = get_current_datetime()
 
     #1. Define all constants and load models
@@ -109,7 +110,8 @@ def do_prediction():
     #     print(type(key), type(val))
     
     end_run_pred = get_current_datetime()
-    prediction_runtime = end_run_pred-start_run_pred
+    tend = time.time()
+    prediction_runtime = tend-tstart
 
     print(f"Prediction time {prediction_runtime}s")
 
