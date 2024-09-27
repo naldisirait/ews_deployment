@@ -50,7 +50,7 @@ def do_prediction():
     hours = 144
     jumlah_subdas = 114
     input_size_ml1 = hours * jumlah_subdas #jumlah jam dikali jumlah subdas
-    output_size_ml1 = 144 #jumlah debit yang diestimasi, 24 jam terakhir adalah hasil forecast
+    output_size_ml1 = 168 #jumlah debit yang diestimasi, 24 jam terakhir adalah hasil forecast
     model_ml1 = load_model_ml1(input_size=input_size_ml1, output_size=output_size_ml1)
 
     input_size_ml2 = 72
