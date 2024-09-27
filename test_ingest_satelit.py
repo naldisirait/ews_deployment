@@ -116,7 +116,8 @@ def list_satelit_filenames():
 
     # List HDFS files recursively
     hdfs_files = list_hdfs_files_recursive(spark, hdfs_path)
-    for n,file in enumerate(hdfs_files[-20:]):
+    hdfs_rain = [i for i in hdfs_files if "gsmap_now_rain" in i]
+    for n,file in enumerate(hdfs_rain[-20:]):
         print(n,file)
 
 if __name__ == "__main__":

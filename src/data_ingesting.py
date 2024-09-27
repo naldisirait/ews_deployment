@@ -44,6 +44,7 @@ def get_prec_only_palu(file_path):
     return prec_values
 
 def get_grided_prec_palu(hdfs_path):
+    print(f"Trying to get the precipitation Palu from GSMAP Jaxa {hdfs_path}")
     from pyspark.sql import SparkSession
     filename = hdfs_path[-31:]
     local_path = f'data/gsmap/{filename}'
