@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import List
 import os
+from fastapi.encoders import jsonable_encoder
 import numpy as np
 import pickle
 import torch
@@ -118,6 +119,7 @@ async def predict():
               "Prediction Output ml1": dict_output_ml1,
               "Prediction Output ml2": dict_output_ml2}
     
+    json_compatible_output = jsonable_encoder(output)
     return output
 
 #Local test
