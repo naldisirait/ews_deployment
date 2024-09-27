@@ -117,7 +117,7 @@ def list_satelit_filenames():
     # List HDFS files recursively
     hdfs_files = list_hdfs_files_recursive(spark, hdfs_path)
     for n,file in enumerate(hdfs_files[-20:]):
-        print(file)
+        print(n,file)
 
 if __name__ == "__main__":
     list_satelit_filenames()
