@@ -109,8 +109,9 @@ def do_prediction():
     #     print(type(key), type(val))
     
     end_run_pred = get_current_datetime()
+    prediction_runtime = end_run_pred-start_run_pred
 
-    print(f"Prediction time {end_run_pred-start_run_pred}s")
+    print(f"Prediction time {prediction_runtime}s")
 
 if __name__ == "__main__":
     do_prediction()
