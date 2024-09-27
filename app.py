@@ -104,6 +104,7 @@ def do_prediction():
     #5. Bundle the Output
     #Convert output ml1 to dict
     dates, dict_output_ml1 = output_ml1_to_dict(dates=dates, output_ml1=output_ml1[0,:].tolist(), precipitation=all_grided_data)
+    
     #Convert output ml2 to dict
     dict_output_ml2 = output_ml2_to_dict(dates=dates[-input_size_ml2:],output_ml2=output_ml2)
     
