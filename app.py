@@ -98,9 +98,8 @@ def do_prediction():
     dummy = False
     if dummy:
         output_ml1 = get_input_debit_sample(kasus)
-        
     input_ml2 = np.expand_dims(output_ml1, axis=-1)
-    input_ml2 = to_tensor(input_ml2)
+    output_ml1 = output_ml1.tolist()
     input_ml2 = torch.tensor(input_ml2, dtype=torch.float32)
     output_ml2 = inference_model(model_ml2, input_ml2)
     output_ml2 = output_ml2[0,:].reshape(3078,2019)

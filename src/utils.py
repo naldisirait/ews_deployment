@@ -16,19 +16,20 @@ def to_tensor(input_data, framework="pytorch"):
     Returns:
         Tensor in the specified framework with float type.
     """
-    if framework == "pytorch":
-        if isinstance(input_data, torch.Tensor):
-            return input_data.float()  # Ensure the tensor is float
-        elif isinstance(input_data, np.ndarray):
-            return torch.from_numpy(input_data).float()  # Convert to PyTorch tensor (float)
-        else:
-            raise ValueError("Unsupported input type for PyTorch. Provide a NumPy array or PyTorch tensor.")
-    else:
-        raise ValueError("Invalid framework specified. Choose 'pytorch' or 'tensorflow'.")
+    # if framework == "pytorch":
+    #     if isinstance(input_data, torch.Tensor):
+    #         return input_data.float()  # Ensure the tensor is float
+    #     elif isinstance(input_data, np.ndarray):
+    #         return torch.from_numpy(input_data).float()  # Convert to PyTorch tensor (float)
+    #     else:
+    #         raise ValueError("Unsupported input type for PyTorch. Provide a NumPy array or PyTorch tensor.")
+    # else:
+    #     raise ValueError("Invalid framework specified. Choose 'pytorch' or 'tensorflow'.")
     
-    # print(type(input_data))
-    # datas = torch.tensor(input, dtype= torch.float32)
-    # return datas
+    print(type(input_data))
+    input_data = input_data.tolist()
+    datas = torch.tensor(input_data, dtype= torch.float32)
+    return datas
 
 def inference_model(model, X):
     with torch.no_grad():
