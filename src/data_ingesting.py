@@ -34,7 +34,7 @@ def slice_data_to_palu(xr_data):
     return xr_palu
 
 def get_prec_only_palu(file_path):
-    ds = xr.open_dataset(file_path)
+    ds = xr.open_dataset(file_path, decode_times=False)
     ds_palu = slice_data_to_palu(ds)
     # Flip the latitude dimension (reverse the order)
     ds_palu = ds_palu.isel(lat=slice(None, None, -1))
