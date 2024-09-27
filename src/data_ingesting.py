@@ -37,7 +37,7 @@ def get_prec_only_palu(file_path):
     ds = xr.open_dataset(file_path, decode_times=False)
     ds_palu = slice_data_to_palu(ds)
     # Flip the latitude dimension (reverse the order)
-    ds_palu = ds_palu.isel(lat=slice(None, None, -1))
+    ds_palu = ds_palu.isel(Latitude=slice(None, None, -1))
     prec_values = ds_palu['hourlyPrecipRateGC'][0].values
     if prec_values.shape != (14,17):
         prec_values = np.zeros((14,17))
