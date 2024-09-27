@@ -25,8 +25,9 @@ def to_tensor(input_data, framework="pytorch"):
     #         raise ValueError("Unsupported input type for PyTorch. Provide a NumPy array or PyTorch tensor.")
     # else:
     #     raise ValueError("Invalid framework specified. Choose 'pytorch' or 'tensorflow'.")
-
-    return torch.tensor(input, dtype= torch.float32)
+    print(type(input_data))
+    datas = torch.tensor(input, dtype= torch.float32)
+    return datas
 
 def inference_model(model, X):
     with torch.no_grad():
@@ -115,4 +116,3 @@ def visualize_debit(data, title, start_prediction):
     plt.grid(True)
     plt.tight_layout()
     plt.show()
-    
