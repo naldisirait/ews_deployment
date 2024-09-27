@@ -17,13 +17,23 @@ def get_input_debit_sample(name):
     try:
         with open('Kasus Validasi ML2.pkl', 'rb') as file:
             data = pickle.load(file)
-        debit = data[name]
+        
+        debit = data[name]  # Ensure 'debit' is extracted correctly
         len_flat = len(debit)
-        debit = np.array(debit)
+
+        # Make sure 'debit' is a NumPy array
+        if not isinstance(debit, np.ndarray):
+            debit = np.array(debit)  # Convert to a NumPy array if it's not already
+
+        # Convert to a PyTorch tensor
         debit = torch.from_numpy(debit)
-        debit = debit.reshape(1,len_flat)
-    except Exception as e :
-        raise
+
+        # Reshape to match the required shape
+        debit = debit.reshape(1, len_flat)
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        raise  # Re-raise the error after logging it
     return debit
 
 def get_current_datetime():
