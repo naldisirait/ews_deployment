@@ -57,10 +57,10 @@ def do_prediction():
     #2. Ingest Data input
     path_config_stas_to_grid = "/opt/ews/ews_deployment/configs/configuration of stasiun to grid.json"
     path_config_grid_to_subdas = "/opt/ews/ews_deployment/configs/configuration of grid to subdas.json"
-    path_config_grid_to_df = "/opt/ews/ews_deployment/configs/configuration of grided to df.json"
+    #path_config_grid_to_df = "/opt/ews/ews_deployment/configs/configuration of grided to df.json"
 
     ingested_data_name, ingested_data = get_prec_from_big_lake(hours)
-    ingested_data_name_hms, ingested_data_hms = get_prec_from_big_lake(hours_hms)
+    #ingested_data_name_hms, ingested_data_hms = get_prec_from_big_lake(hours_hms)
 
     #3.1 Inference ML1
     all_grided_data, dates, input_ml1 =  get_input_ml1(ingested_data,
