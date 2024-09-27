@@ -26,7 +26,8 @@ def get_input_debit_sample(name):
             debit = np.array(debit)  # Convert to a NumPy array if it's not already
 
         # Convert to a PyTorch tensor
-        debit = torch.from_numpy(debit)
+        debit = torch.tensor(debit, dtype=torch.float32)
+        #debit = torch.from_numpy(debit)
 
         # Reshape to match the required shape
         debit = debit.reshape(1, len_flat)
@@ -100,6 +101,7 @@ def do_prediction():
         output_ml1 = get_input_debit_sample(kasus)
     input_ml2 = np.expand_dims(output_ml1, axis=-1)
     input_ml2 = to_tensor(input_ml2)
+    input_ml2 = torch.tensor(input_ml2, dtype=torch.float32)
     output_ml2 = inference_model(model_ml2, input_ml2)
     output_ml2 = output_ml2[0,:].reshape(3078,2019)
     print(output_ml2.shape)
