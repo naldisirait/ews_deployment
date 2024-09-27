@@ -3,6 +3,39 @@ import torch
 import pandas as pd
 import json
 
+def get_input_hms(ingested_data,ingested_data_name, path_conf_grided_to_df,path_config_stas_to_grid,path_config_grid_to_subdas):
+    """
+    Function to get the input of hec hms, grided to dataframe
+    Args:
+        grided_prec(list): a list of grided precipitation each time
+        dates (list): dates of data
+        path_conf_grided_to_df(str): path to json file of the configuration grid to df
+    Returns:
+        df: dataframe of precipitation for hecdss
+    """
+    station_to_grided_config,grided_to_subdas_config = get_transformation_config(path_config_stas_to_grid, path_config_grid_to_subdas)
+
+    all_grided_data_hms, dates, all_time_prec_subdas = process_precip_from_satelit(station_to_grided_config=station_to_grided_config,
+                                                                        grided_to_subdas_config=grided_to_subdas_config,
+                                                                        ingested_data=ingested_data,
+                                                                        ingested_data_name=ingested_data_name)
+    conf_grided_to_df = open_json_file(path_conf_grided_to_df)
+    indexes = conf_grided_to_df['indexes']
+    grided_prec = np.array(all_grided_data_hms)
+    t, len_lat, len_lon = grided_prec.shape
+    prec = np.reshape(grided_prec, (t,-1))
+    dict_prec = {'time' : dates}
+    for idx in indexes:
+        dict_prec[f'INDEX{idx}'] = prec[:,idx]
+    df = pd.DataFrame(dict_prec)
+    return all_grided_data_hms,df 
+
+def open_json_file(filepath):
+    # Open the json file
+    with open(filepath, 'r') as file:
+        data = json.load(file)
+    return data
+
 def get_transformation_config(path_config_stas_to_grid, path_config_grid_to_subdas):
     """
     function to get the configuration of percentage distributed station to grid and grid to subdas
@@ -170,7 +203,7 @@ def get_input_ml1(ingested_data,ingested_data_name,path_config_stas_to_grid,path
                                                                                ingested_data=ingested_data,
                                                                                ingested_data_name=ingested_data_name)
     elif ingested_data_name == "Satelit":
-        all_grided_data, dates, all_time_prec_subdas = process_precip_from_stasiun(station_to_grided_config=station_to_grided_config,
+        all_grided_data, dates, all_time_prec_subdas = process_precip_from_satelit(station_to_grided_config=station_to_grided_config,
                                                                                grided_to_subdas_config=grided_to_subdas_config,
                                                                                ingested_data=ingested_data,
                                                                                ingested_data_name=ingested_data_name)

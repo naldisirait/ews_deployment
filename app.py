@@ -1,14 +1,27 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import List
+import os
 import numpy as np
+import pickle
+import torch
 from datetime import datetime
 
 #import modul from this project
-from src.data_processing import get_input_ml1
+from src.data_processing import get_input_ml1, get_input_hms
 from src.data_ingesting import get_prec_from_big_lake
 from src.utils import inference_model,to_tensor
 from src.post_processing import output_ml1_to_dict, output_ml2_to_dict
+
+def get_input_debit_sample(name):
+    with open('Kasus Validasi ML2.pkl') as file:
+        data = pickle.load(file)
+    debit = data['debit']
+    len_flat = len(debit)
+    debit = np.array(debit)
+    debit = torch.from_numpy(debit)
+    debit = debit.reshape(1,len_flat)
+    return debit
 
 def get_current_datetime():
     # Get the current date and time
@@ -26,9 +39,11 @@ from models.inundation.model_ml2  import load_model_ml2
 
 app = FastAPI()
 def do_prediction():
+    cwd = os.getcwd()
     start_run_pred = get_current_datetime()
 
     #1. Define all constants and load models
+    hours_hms = 720
     hours = 144
     jumlah_subdas = 114
     input_size_ml1 = hours * jumlah_subdas #jumlah jam dikali jumlah subdas
@@ -42,10 +57,12 @@ def do_prediction():
     #2. Ingest Data input
     path_config_stas_to_grid = "/opt/ews/ews_deployment/configs/configuration of stasiun to grid.json"
     path_config_grid_to_subdas = "/opt/ews/ews_deployment/configs/configuration of grid to subdas.json"
+    path_config_grid_to_df = "/opt/ews/ews_deployment/configs/configuration of grided to df.json"
 
     ingested_data_name, ingested_data = get_prec_from_big_lake(hours)
+    ingested_data_name_hms, ingested_data_hms = get_prec_from_big_lake(hours_hms)
 
-    #3. Inference ML1
+    #3.1 Inference ML1
     all_grided_data, dates, input_ml1 =  get_input_ml1(ingested_data,
                                                    ingested_data_name,
                                                    path_config_stas_to_grid,
@@ -53,14 +70,25 @@ def do_prediction():
     
     all_grided_data = np.array(all_grided_data)
     output_ml1 = inference_model(model_ml1,input_ml1)
+
+    #3.2 Prepare data hms and inference HEC-HMS
+    # all_grided_data_hms, df_hms = get_input_hms(ingested_data=ingested_data_hms,
+    #                                             ingested_data_name=ingested_data_name_hms, 
+    #                                             path_conf_grided_to_df=path_config_grid_to_df,
+    #                                             path_config_stas_to_grid=path_config_stas_to_grid,
+    #                                             path_config_grid_to_subdas=path_config_grid_to_subdas)
     
-    #4. Inference ML2
+    
+    #4.1 Inference ML2 using output from ML1
     output_ml1 = output_ml1[:,-input_size_ml2:]
+    output_ml1 = get_input_debit_sample("Kasus 8")
     input_ml2 = np.expand_dims(output_ml1, axis=-1)
     input_ml2 = to_tensor(input_ml2)
     output_ml2 = inference_model(model_ml2, input_ml2)
     output_ml2 = output_ml2[0,:].reshape(3078,2019)
     print(output_ml2.shape)
+
+    #4.2 Inference ML2 using output from HMS
 
     #5. Bundle the Output
     #Convert output ml1 to dict
@@ -86,8 +114,5 @@ async def predict():
     
     return output
 
-# Run the application using the following command:
 #Local test
 # uvicorn app:app --reload
-# Background run 
-# nohup uvicorn main:app --host 0.0.0.0 --port 8000 > uvicorn.log 2>&1 &

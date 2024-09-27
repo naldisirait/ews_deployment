@@ -33,6 +33,7 @@ def output_ml1_to_dict(dates, output_ml1, precipitation):
     return dates, dict_output_ml1
 
 def output_ml2_to_dict(dates,output_ml2):
+    output_ml2[output_ml2<0.2] = 0
     dict_output_ml2 = {
         "name": "max_depth",
         "start_date": dates[0],

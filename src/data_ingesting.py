@@ -123,6 +123,13 @@ def convert_half_hourly_gsmap_prec_to_hourly(month_gsmap_data):
     return hourly_data_dict
 
 def get_prec_gsmap_from_big_lake(hours):
+    """
+    function to get the gsmap precipitation from biglake 
+    Args:
+        hours(int): number of hours to lookback
+    Returns:
+        hourly_gsmap_month_data(dict): key(date): grided precip value
+    """
     gsmap_pickle_path = "/data/gsmap/gsmap_latest_month.pkl"
     total_data = hours * 2
     generated_dates = generated_half_hourly_dates_backwards(total_generated=total_data)
