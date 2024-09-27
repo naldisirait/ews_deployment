@@ -82,18 +82,11 @@ def do_prediction():
                                                    path_config_stas_to_grid,
                                                    path_config_grid_to_subdas)
     
-    all_grided_data = np.array(all_grided_data)
+    print(type(input_ml1), input_ml1.shape)
     
     output_ml1 = inference_model(model_ml1,input_ml1)
     print(type(output_ml1), output_ml1.shape)
 
-    #3.2 Prepare data hms and inference HEC-HMS
-    # all_grided_data_hms, df_hms = get_input_hms(ingested_data=ingested_data_hms,
-    #                                             ingested_data_name=ingested_data_name_hms, 
-    #                                             path_conf_grided_to_df=path_config_grid_to_df,
-    #                                             path_config_stas_to_grid=path_config_stas_to_grid,
-    #                                             path_config_grid_to_subdas=path_config_grid_to_subdas)
-    
     #4.1 Inference ML2 using output from ML1
     output_ml1 = output_ml1[:,-input_size_ml2:]
     kasus = "Kasus 8"
@@ -109,7 +102,7 @@ def do_prediction():
     #4.2 Inference ML2 using output from HMS
     #5. Bundle the Output
     #Convert output ml1 to dict
-    dates, dict_output_ml1 = output_ml1_to_dict(dates=dates, output_ml1=output_ml1[0,:].tolist(), precipitation=all_grided_data.tolist())
+    dates, dict_output_ml1 = output_ml1_to_dict(dates=dates, output_ml1=output_ml1[0,:].tolist(), precipitation=all_grided_data)
     #Convert output ml2 to dict
     dict_output_ml2 = output_ml2_to_dict(dates=dates[-input_size_ml2:],output_ml2=output_ml2)
     
