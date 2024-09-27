@@ -21,26 +21,55 @@ def generate_next_24_hours(start_date_str):
     
     return next_24_hours
 
+# def output_ml1_to_dict(dates, output_ml1, precipitation):
+#     next_24hr = generate_next_24_hours(dates[-1])
+#     dates = dates + next_24hr
+#     time_data = dates[-len(output_ml1):]
+#     dict_output_ml1 = {"name": "wl", 
+#             "measurement_type":"forecast",
+#             "time_data": time_data,
+#             "precipitation": precipitation,
+#             "data": output_ml1}
+#     return dates, dict_output_ml1
+
 def output_ml1_to_dict(dates, output_ml1, precipitation):
     next_24hr = generate_next_24_hours(dates[-1])
     dates = dates + next_24hr
     time_data = dates[-len(output_ml1):]
-    dict_output_ml1 = {"name": "wl", 
-            "measurement_type":"forecast",
-            "time_data": time_data,
-            "precipitation": precipitation,
-            "data": output_ml1}
+    
+    # Ensure `precipitation` is serialized
+    dict_output_ml1 = {
+        "name": "wl", 
+        "measurement_type": "forecast",
+        "time_data": time_data,
+        "precipitation": precipitation.tolist() if isinstance(precipitation, (np.ndarray, torch.Tensor)) else precipitation,
+        "data": output_ml1  # Ensure this is a list, already handled by output_ml1.tolist() before
+    }
     return dates, dict_output_ml1
 
-def output_ml2_to_dict(dates,output_ml2):
-    output_ml2[output_ml2<0.2] = 0
+
+# def output_ml2_to_dict(dates,output_ml2):
+#     output_ml2[output_ml2<0.2] = 0
+#     dict_output_ml2 = {
+#         "name": "max_depth",
+#         "start_date": dates[0],
+#         "end_date": dates[-1],
+#         "inundation": output_ml2.tolist()
+#     }
+#     return dict_output_ml2
+
+def output_ml2_to_dict(dates, output_ml2):
+    output_ml2[output_ml2 < 0.2] = 0
+    
+    # Convert output_ml2 to a list
     dict_output_ml2 = {
         "name": "max_depth",
         "start_date": dates[0],
         "end_date": dates[-1],
-        "inundation": output_ml2.tolist()
+        "inundation": output_ml2.tolist()  # This ensures it's serialized
     }
     return dict_output_ml2
+
 
 def convert_array_to_tif(data_array, filename, meta=None):
     """
