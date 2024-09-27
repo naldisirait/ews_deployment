@@ -162,7 +162,7 @@ def get_prec_gsmap_from_big_lake(hours):
     new_month_gsmap_data = {}
 
     #get all gsmap now filenames from biglake
-    all_gsmap_now_data_in_biglake = get_list_gsmap_now_from_biglake()
+    all_gsmap_now_data_in_biglake = set(get_list_gsmap_now_from_biglake())
     #check all the file needed
     gsmap_now_needed = []
     for date in generated_dates:
@@ -176,7 +176,7 @@ def get_prec_gsmap_from_big_lake(hours):
     if len(missed_data) > int(total_data/2):
         print(f"There is {len(total_missed)} missing data from jaxa, then return None")
         return None
-    #np.zeros((14,17))
+    
     for date in generated_dates:
         date = date - timedelta(hours=8)
         date_str = date.strftime('%Y-%m-%d %H:%M:%S')
