@@ -78,7 +78,7 @@ def do_prediction():
     print(f"Type of input_ml1 {type(input_ml1)}, shape input_ml1: {input_ml1.shape}")
     
     output_ml1 = inference_model(model_ml1,input_ml1)
-    print(f"Type of input_ml1 {type(output_ml1)}, shape input_ml1: {output_ml1.shape}")
+    print(f"Type of output_ml1 {type(output_ml1)}, shape output_ml1: {output_ml1.shape}")
 
     #4.1 Inference ML2 using output from ML1
     output_ml1 = output_ml1[:,-input_size_ml2:]
@@ -88,12 +88,12 @@ def do_prediction():
         output_ml1 = get_input_debit_sample(kasus)
     input_ml2 = np.expand_dims(output_ml1, axis=-1)
 
-    print(f"input_ml2 type: {type(input_ml2)}, shape: {input_ml2}")
+    print(f"input_ml2 type: {type(input_ml2)}, shape: {input_ml2.shape}")
     input_ml2 = torch.tensor(input_ml2, dtype=torch.float32)
     output_ml2 = inference_model(model_ml2, input_ml2)
-    print(f"output_ml2 raw type: {type(output_ml2)}, shape: {output_ml2}")
+    print(f"output_ml2 raw type: {type(output_ml2)}, shape: {output_ml2.shape}")
     output_ml2 = output_ml2[0,:].reshape(3078,2019)
-    print(f"output_ml2 after slicing and reshape type: {type(output_ml2)}, shape: {output_ml2}")
+    print(f"output_ml2 after slicing and reshape type: {type(output_ml2)}, shape: {output_ml2.shape}")
 
     #5. Bundle the Output
     #Convert output ml1 to dict
