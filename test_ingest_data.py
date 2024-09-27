@@ -17,6 +17,30 @@ from src.post_processing import output_ml1_to_dict, output_ml2_to_dict
 from models.discharge.model_ml1 import load_model_ml1
 from models.inundation.model_ml2  import load_model_ml2
 
+def get_input_debit_sample(name):
+    try:
+        with open('Kasus Validasi ML2.pkl', 'rb') as file:
+            data = pickle.load(file)
+        
+        debit = data[name]  # Ensure 'debit' is extracted correctly
+        len_flat = len(debit)
+
+        # Make sure 'debit' is a NumPy array
+        if not isinstance(debit, np.ndarray):
+            debit = np.array(debit)  # Convert to a NumPy array if it's not already
+
+        # Convert to a PyTorch tensor
+        debit = torch.tensor(debit, dtype=torch.float32)
+        #debit = torch.from_numpy(debit)
+
+        # Reshape to match the required shape
+        debit = debit.reshape(1, len_flat)
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        raise  # Re-raise the error after logging it
+    return debit
+
 def get_current_datetime():
     # Get the current date and time
     now = datetime.now()
@@ -57,6 +81,28 @@ def do_prediction():
     
     output_ml1 = inference_model(model_ml1,input_ml1)
     print(type(output_ml1), output_ml1.shape)
+
+    #4.1 Inference ML2 using output from ML1
+    output_ml1 = output_ml1[:,-input_size_ml2:]
+    kasus = "Kasus 8"
+    dummy = False
+    if dummy:
+        output_ml1 = get_input_debit_sample(kasus)
+    input_ml2 = np.expand_dims(output_ml1, axis=-1)
+    output_ml1 = output_ml1.tolist()
+    input_ml2 = torch.tensor(input_ml2, dtype=torch.float32)
+    output_ml2 = inference_model(model_ml2, input_ml2)
+    output_ml2 = output_ml2[0,:].reshape(3078,2019)
+    print(output_ml2.shape)
+    
+    #4.2 Inference ML2 using output from HMS
+    #5. Bundle the Output
+    #Convert output ml1 to dict
+    dates, dict_output_ml1 = output_ml1_to_dict(dates=dates, output_ml1=output_ml1[0,:].tolist(), precipitation=all_grided_data.tolist())
+    #Convert output ml2 to dict
+    dict_output_ml2 = output_ml2_to_dict(dates=dates[-input_size_ml2:],output_ml2=output_ml2)
+    
+    end_run_pred = get_current_datetime()
 
 if __name__ == "__main__":
     do_prediction()
