@@ -127,6 +127,26 @@ def convert_half_hourly_gsmap_prec_to_hourly(month_gsmap_data):
             hourly_data_dict[new_key] = hourly_array
     return hourly_data_dict
 
+def get_list_gsmap_now_from_biglake():
+    from pyspark.sql import SparkSession
+    spark = SparkSession.builder \
+        .appName("master") \
+        .config("spark.hadoop.hadoop.security.authentication", "kerberos") \
+        .config("spark.hadoop.hadoop.security.authorization", "true") \
+        .config("spark.security.credentials.hive.enabled","false") \
+        .config("spark.security.credentials.hbase.enabled","false") \
+        .enableHiveSupport().getOrCreate()
+        
+    # Define the HDFS path
+    # hdfs_path = "/user/warehouse/SPLP/PUPR/curah_hujan/palu"
+    # hdfs_path = "/user/warehouse/SPLP/PUPR"
+    hdfs_path = "/user/warehouse/JAXA/curah_hujan"
+
+    # List HDFS files recursively
+    hdfs_files = list_hdfs_files_recursive(spark, hdfs_path)
+    hdfs_rain = [i for i in hdfs_files if "gsmap_now_rain" in i]
+    return hdfs_rain
+
 def get_prec_gsmap_from_big_lake(hours):
     """
     function to get the gsmap precipitation from biglake 
@@ -140,13 +160,35 @@ def get_prec_gsmap_from_big_lake(hours):
     generated_dates = generated_half_hourly_dates_backwards(total_generated=total_data)
     latest_month_gsmap_data = open_pickle_gsmap(file_path=gsmap_pickle_path)
     new_month_gsmap_data = {}
+
+    #get all gsmap now filenames from biglake
+    all_gsmap_now_data_in_biglake = get_list_gsmap_now_from_biglake()
+    #check all the file needed
+    gsmap_now_needed = []
     for date in generated_dates:
+        date = date - timedelta(hours=8)
+        date_str = date.strftime('%Y-%m-%d %H:%M:%S')
+        hdfs_path = get_hdfs_path(date=date)
+        gsmap_now_needed.append(hdfs_path)
+
+    missed_data = [file for file in gsmap_now_needed if file not in all_gsmap_now_data_in_biglake]
+
+    if len(missed_data) > int(missed_data/2):
+        print(f"There is {len(missed_data)} missing data from jaxa, then return None")
+        return None
+    #np.zeros((14,17))
+    for date in generated_dates:
+        date = date - timedelta(hours=8)
         date_str = date.strftime('%Y-%m-%d %H:%M:%S')
         if date_str in latest_month_gsmap_data:
             new_month_gsmap_data[date_str] = latest_month_gsmap_data[date_str]
         else:
             hdfs_path = get_hdfs_path(date=date)
-            new_month_gsmap_data[date_str] = get_grided_prec_palu(hdfs_path=hdfs_path)
+            if hdfs_path in missed_data:
+                print(f"Missing data replace with zeros, {hdfs_path}")
+                new_month_gsmap_data[date_str] = np.zeros((14,17))
+            else:
+                new_month_gsmap_data[date_str] = get_grided_prec_palu(hdfs_path=hdfs_path)
     hourly_gsmap_month_data = convert_half_hourly_gsmap_prec_to_hourly(new_month_gsmap_data)
     dump_pickle_gsmap(data=new_month_gsmap_data,file_path=gsmap_pickle_path)
     return hourly_gsmap_month_data
