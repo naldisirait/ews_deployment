@@ -15,9 +15,9 @@ from src.post_processing import output_ml1_to_dict, output_ml2_to_dict
 
 def get_input_debit_sample(name):
     try:
-        with open('Kasus Validasi ML2.pkl') as file:
+        with open('Kasus Validasi ML2.pkl', 'rb') as file:
             data = pickle.load(file)
-        debit = data['debit']
+        debit = data[name]
         len_flat = len(debit)
         debit = np.array(debit)
         debit = torch.from_numpy(debit)
