@@ -12,7 +12,7 @@ from datetime import datetime
 from src.data_processing import get_input_ml1, get_input_hms
 from src.data_ingesting import get_prec_from_big_lake
 from src.utils import inference_model,get_current_datetime, to_tensor
-from src.post_processing import output_ml1_to_dict, output_ml2_to_dict
+from src.post_processing import output_ml1_to_dict, output_ml2_to_dict, ensure_jsonable
 
 #import model ml1 and ml2
 from models.discharge.model_ml1 import load_model_ml1
@@ -112,6 +112,13 @@ def do_prediction():
     end_run_pred = get_current_datetime()
     tend = time.time()
     prediction_runtime = tend-tstart
+
+    output = {"Prediction Time Start": str(start_run_pred), 
+              "Prediction time Finished": str(end_run_pred), 
+              "Prediction Output ml1": dict_output_ml1,
+              "Prediction Output ml2": dict_output_ml2}
+    
+    output = ensure_jsonable(output)
 
     print(f"Prediction time {prediction_runtime}s")
 

@@ -3,6 +3,52 @@ import json
 import torch
 from datetime import datetime, timedelta
 
+import json
+import numpy as np
+import torch
+
+def is_jsonable(x):
+    """
+    Check if the input is JSON serializable.
+    """
+    try:
+        json.dumps(x)
+        return True
+    except (TypeError, OverflowError):
+        return False
+
+def convert_to_jsonable(x):
+    """
+    Convert the input variable to a JSON-compatible type if possible.
+    """
+    if isinstance(x, (np.ndarray, torch.Tensor)):
+        # Convert numpy arrays or torch tensors to lists
+        return x.tolist()
+    elif isinstance(x, dict):
+        # Recursively convert dictionary values
+        return {key: convert_to_jsonable(value) for key, value in x.items()}
+    elif isinstance(x, list):
+        # Recursively convert list elements
+        return [convert_to_jsonable(item) for item in x]
+    elif isinstance(x, tuple):
+        # Convert tuples to lists (tuples are not JSON serializable)
+        return [convert_to_jsonable(item) for item in x]
+    elif isinstance(x, set):
+        # Convert sets to lists
+        return list(x)
+    else:
+        # If it's a basic type or already JSON-serializable, return as is
+        return x
+
+def ensure_jsonable(data):
+    """
+    Ensure the entire data structure is JSON-serializable.
+    """
+    if is_jsonable(data):
+        return data
+    else:
+        return convert_to_jsonable(data)
+
 def generate_next_24_hours(start_date_str):
     """
     Generate the next 24 hourly timestamps as strings starting from the given date string.
