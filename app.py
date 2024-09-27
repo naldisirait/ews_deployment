@@ -32,6 +32,7 @@ def get_input_debit_sample(name):
 
         # Reshape to match the required shape
         debit = debit.reshape(1, len_flat)
+        debit = debit.numpy()
 
     except Exception as e:
         print(f"An error occurred: {e}")
