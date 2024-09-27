@@ -92,13 +92,13 @@ def do_prediction():
     #                                             path_config_stas_to_grid=path_config_stas_to_grid,
     #                                             path_config_grid_to_subdas=path_config_grid_to_subdas)
     
-    
     #4.1 Inference ML2 using output from ML1
     output_ml1 = output_ml1[:,-input_size_ml2:]
     kasus = "Kasus 8"
     dummy = False
     if dummy:
         output_ml1 = get_input_debit_sample(kasus)
+        
     input_ml2 = np.expand_dims(output_ml1, axis=-1)
     input_ml2 = to_tensor(input_ml2)
     input_ml2 = torch.tensor(input_ml2, dtype=torch.float32)
@@ -107,7 +107,6 @@ def do_prediction():
     print(output_ml2.shape)
 
     #4.2 Inference ML2 using output from HMS
-
     #5. Bundle the Output
     #Convert output ml1 to dict
     dates, dict_output_ml1 = output_ml1_to_dict(dates=dates, output_ml1=output_ml1[0,:].tolist(), precipitation=all_grided_data.tolist())
