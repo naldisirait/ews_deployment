@@ -14,13 +14,16 @@ from src.utils import inference_model,to_tensor
 from src.post_processing import output_ml1_to_dict, output_ml2_to_dict
 
 def get_input_debit_sample(name):
-    with open('Kasus Validasi ML2.pkl') as file:
-        data = pickle.load(file)
-    debit = data['debit']
-    len_flat = len(debit)
-    debit = np.array(debit)
-    debit = torch.from_numpy(debit)
-    debit = debit.reshape(1,len_flat)
+    try:
+        with open('Kasus Validasi ML2.pkl') as file:
+            data = pickle.load(file)
+        debit = data['debit']
+        len_flat = len(debit)
+        debit = np.array(debit)
+        debit = torch.from_numpy(debit)
+        debit = debit.reshape(1,len_flat)
+    except Exception as e :
+        raise
     return debit
 
 def get_current_datetime():

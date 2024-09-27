@@ -56,7 +56,7 @@ def convert_array_to_tif(data_array, filename, meta=None):
     import rasterio
     from rasterio.crs import CRS
 
-    path = r"C:\Users\62812\Documents\Kerjaan Meteorologi\FEWS BNPB\Code\github\EWS of Flood Forecast\hasil_prediksi\genangan"
+    path = r"EWS of Flood Forecast\hasil_prediksi\genangan"
 
     # Convert tensor to NumPy array if necessary
     if isinstance(data_array, torch.Tensor):
@@ -79,11 +79,9 @@ def convert_array_to_tif(data_array, filename, meta=None):
         dst.write(data_array, 1)
         print(f"Successfully saved to {filename}")
 
-    
-
 def output_ml1_to_json(values, filename, prediction_time):
 
-    path = r"C:\Users\62812\Documents\Kerjaan Meteorologi\FEWS BNPB\Code\github\EWS of Flood Forecast\hasil_prediksi\debit"
+    path = r"EWS of Flood Forecast\hasil_prediksi\debit"
     filename = f"{path}/{filename}"
     try:
         # Convert tensor to list or NumPy array if necessary
@@ -96,7 +94,6 @@ def output_ml1_to_json(values, filename, prediction_time):
             'prediction_time': str(prediction_time),
             'values': values_list
         }
-
         # Save to JSON file
         with open(filename, 'w') as json_file:
             json.dump(data_to_save, json_file)
