@@ -172,9 +172,9 @@ def get_prec_gsmap_from_big_lake(hours):
         gsmap_now_needed.append(hdfs_path)
 
     missed_data = [file for file in gsmap_now_needed if file not in all_gsmap_now_data_in_biglake]
-
-    if len(missed_data) > int(missed_data/2):
-        print(f"There is {len(missed_data)} missing data from jaxa, then return None")
+    total_missed = len(missed_data)
+    if len(missed_data) > int(total_data/2):
+        print(f"There is {len(total_missed)} missing data from jaxa, then return None")
         return None
     #np.zeros((14,17))
     for date in generated_dates:
