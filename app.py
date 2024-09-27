@@ -83,7 +83,9 @@ def do_prediction():
                                                    path_config_grid_to_subdas)
     
     all_grided_data = np.array(all_grided_data)
+    
     output_ml1 = inference_model(model_ml1,input_ml1)
+    print(type(output_ml1), output_size_ml1.shape)
 
     #3.2 Prepare data hms and inference HEC-HMS
     # all_grided_data_hms, df_hms = get_input_hms(ingested_data=ingested_data_hms,
