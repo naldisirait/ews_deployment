@@ -39,6 +39,13 @@ def get_input_debit_sample(name):
         raise  # Re-raise the error after logging it
     return debit
 
+def get_non_flood_depth():
+    path_config_depth = "./configs/conf of non flood.pkl"
+    with open(path_config_depth,"rb") as file:
+        loaded_data = pickle.load(file)
+    depth = loaded_data['depth']
+    return depth
+
 # Define input data model
 class InputData(BaseModel):
     inputs: List[List[float]]
@@ -50,12 +57,9 @@ from models.inundation.model_ml2  import load_model_ml2
 app = FastAPI()
 def do_prediction():
     tstart = time.time()
-    kasus = "Kasus 8"
-    dummy = False
     start_run_pred = get_current_datetime()
 
     #1. Define all constants and load models
-    hours_hms = 720
     hours = 144
     jumlah_subdas = 114
     input_size_ml1 = hours * jumlah_subdas #jumlah jam dikali jumlah subdas
@@ -67,9 +71,10 @@ def do_prediction():
     model_ml2 = load_model_ml2(input_size=input_size_ml2, output_size=output_size_ml2)
 
     #2. Ingest Data input
-    path_config_stas_to_grid = "/opt/ews/ews_deployment/configs/configuration of stasiun to grid.json"
-    path_config_grid_to_subdas = "/opt/ews/ews_deployment/configs/configuration of grid to subdas.json"
-    path_config_grid_to_df = "/opt/ews/ews_deployment/configs/configuration of grided to df.json"
+    path_config_stas_to_grid = "./configs/configuration of stasiun to grid.json"
+    path_config_grid_to_subdas = "./configs/configuration of grid to subdas.json"
+    path_config_grid_to_df = "./configs/configuration of grided to df.json"
+
     conf_grid_to_df = open_json_file(path_config_grid_to_df)
     index_grided_chosen = conf_grid_to_df['indexes']
 
@@ -93,8 +98,6 @@ def do_prediction():
 
     #4.1 Inference ML2 using output from ML1
     output_ml1 = output_ml1[:,-input_size_ml2:]
-    if dummy:
-        output_ml1 = get_input_debit_sample(kasus)
     input_ml2 = np.expand_dims(output_ml1, axis=-1)
 
     print(f"input_ml2 type: {type(input_ml2)}, shape: {input_ml2.shape}")
@@ -104,6 +107,9 @@ def do_prediction():
     output_ml2 = output_ml2[0,:].reshape(3078,2019)
     print(f"output_ml2 after slicing and reshape type: {type(output_ml2)}, shape: {output_ml2.shape}")
 
+    if np.max(output_ml1) < 200:
+        output_ml2 = get_non_flood_depth()
+        
     #5. Bundle the Output
     #Convert output ml1 to dict
     ch_wilayah = convert_prec_grided_to_ch_wilayah(prec_grided=all_grided_data, idx_chosen=index_grided_chosen)
@@ -122,7 +128,6 @@ def do_prediction():
               "Prediction Output ml2": dict_output_ml2}
     
     output = ensure_jsonable(output)
-
     print(f"Prediction time {prediction_runtime}s")
 
     return output
