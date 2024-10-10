@@ -104,6 +104,16 @@ def wse_to_depth(wse):
     depth[depth>3] = 3
     return depth
 
+def get_non_flood_depth():
+    path_non_flood = './data/depth_non_flood.pkl'
+    with open(path_non_flood, 'rb') as file:
+        loaded_data = pickle.load(file)
+        non_flood = loaded_data['data_non_flood']
+    non_flood = np.array(non_flood)
+    non_flood[non_flood<0] = 0
+    non_flood[non_flood>3] = 3
+    return non_flood
+
 def inference_ml2(input_debit):
     """
     Function to inference inundation 
@@ -112,6 +122,9 @@ def inference_ml2(input_debit):
     Returns:
         pred_inundation(tensor): estimated max depth given input debit
     """
+    max_debit = float(torch.max(input_debit))
+    if max_debit <= 200:
+        return get_non_flood_depth()
     device = "cpu"
     width, height = 1621, 1680
     model = load_model_ml2(width=width, height=height, device=device)
