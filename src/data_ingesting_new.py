@@ -131,6 +131,8 @@ def correct_data_gsmap(data):
         
         # Store the corrected values in the corrected_data array
         corrected_data[mask] = data[mask] * correct_bias
+
+    print("Returns Corrected Data GSMAP")
     return corrected_data
     
 def get_precip_gsmap(date):
@@ -166,8 +168,8 @@ def get_data_from_biglake(date):
             
 def get_data_precip_72jam(path_hujan_72_jam):
     # Step 1: Get current time
-    current_time = datetime.now()
-    #current_time = datetime(2022, 10, 11, 12, 0)
+    # current_time = datetime.now()
+    current_time = datetime(2022, 10, 11, 12, 0)
     
     # Step 2: Convert current time's minutes and seconds to zero
     current_time = current_time.replace(minute=0, second=0, microsecond=0)
