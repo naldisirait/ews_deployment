@@ -16,7 +16,7 @@ def do_prediction():
 
     #1. Ingest data hujan
     path_hujan_hist_72jam = "./data/hujan_72_jam.pkl"
-    input_ml1, ch_wilayah, date_list, data_information, data_name_list = get_input_ml1()
+    input_ml1, ch_wilayah, date_list, data_information, data_name_list = get_input_ml1(path_hujan_hist_72jam)
 
     #2. Predict debit using ML1
     debit = inference_ml1(input_ml1)
