@@ -111,21 +111,42 @@ def get_precip_pupr(date):
     except:
         return "Not Available", None
     return "Available", df
+
+def correct_data_gsmap(data):
+    #open correction factors
+    df_correction_factor_path = "./data/correction factors.pkl"
+    with open(df_correction_factor_path, 'rb') as file:
+        df_correction_factor = pickle.load(file)
+
+    # Initialize a zeros array to store corrected values
+    corrected_data = np.zeros_like(data)
+    # Apply the correction and store results in the corrected_data array
+    for idx, row in df_correction_factor.iterrows():
+        below_threshold = row['below_threshold']
+        upper_threshold = row['upper_threshold']
+        correct_bias = row['correct_bias']
+        
+        # Create a mask where values are within the threshold range
+        mask = (data >= below_threshold) & (data <= upper_threshold)
+        
+        # Store the corrected values in the corrected_data array
+        corrected_data[mask] = data[mask] * correct_bias
+    return corrected_data
     
 def get_precip_gsmap(date):
-    early_30_min_date = date - timedelta(minutes=30)
-    prec_value_1 = get_grided_prec_palu(early_30_min_date)
-    prec_value_2 = get_grided_prec_palu(date)
-    hourly_prec = (prec_value_1 + prec_value_2)/2
-    return "Available", hourly_prec
-    # try:
-    #     early_30_min_date = date - timedelta(minutes=30)
-    #     prec_value_1 = get_grided_prec_palu(early_30_min_date)
-    #     prec_value_2 = get_grided_prec_palu(date)
-    #     hourly_prec = (prec_value_1 + prec_value_2)/2
-    #     return "Available", hourly_prec
-    # except:
-    #     return "Not Available", None
+    # early_30_min_date = date - timedelta(minutes=30)
+    # prec_value_1 = get_grided_prec_palu(early_30_min_date)
+    # prec_value_2 = get_grided_prec_palu(date)
+    # hourly_prec = (prec_value_1 + prec_value_2)/2
+    # return "Available", hourly_prec
+    try:
+        early_30_min_date = date - timedelta(minutes=30)
+        prec_value_1 = get_grided_prec_palu(early_30_min_date)
+        prec_value_2 = get_grided_prec_palu(date)
+        hourly_prec = (prec_value_1 + prec_value_2)/2
+        return "Available", hourly_prec
+    except:
+        return "Not Available", None
     
 def get_data_from_biglake(date):
     # Simulate fetching data from biglake (PUPR or GSMAP)
@@ -137,8 +158,8 @@ def get_data_from_biglake(date):
         return "pupr", grided_data
     else:
         jaxa_avaibility, data = get_precip_gsmap(date)
+        data = correct_data_gsmap(data)
         if jaxa_avaibility=="Available":
-            #do something here to get only 8x7 grid data
             return "gsmap", data
         else:
             return None
