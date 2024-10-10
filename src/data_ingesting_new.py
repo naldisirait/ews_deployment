@@ -112,14 +112,19 @@ def get_precip_pupr(date):
     return "Available", df
     
 def get_precip_gsmap(date):
-    try:
-        early_30_min_date = date - timedelta(minutes=30)
-        prec_value_1 = get_grided_prec_palu(early_30_min_date)
-        prec_value_2 = get_grided_prec_palu(date)
-        hourly_prec = (prec_value_1 + prec_value_2)/2
-        return "Available", hourly_prec
-    except:
-        return "Not Available", None
+    early_30_min_date = date - timedelta(minutes=30)
+    prec_value_1 = get_grided_prec_palu(early_30_min_date)
+    prec_value_2 = get_grided_prec_palu(date)
+    hourly_prec = (prec_value_1 + prec_value_2)/2
+    return "Available", hourly_prec
+    # try:
+    #     early_30_min_date = date - timedelta(minutes=30)
+    #     prec_value_1 = get_grided_prec_palu(early_30_min_date)
+    #     prec_value_2 = get_grided_prec_palu(date)
+    #     hourly_prec = (prec_value_1 + prec_value_2)/2
+    #     return "Available", hourly_prec
+    # except:
+    #     return "Not Available", None
     
 def get_data_from_biglake(date):
     # Simulate fetching data from biglake (PUPR or GSMAP)
