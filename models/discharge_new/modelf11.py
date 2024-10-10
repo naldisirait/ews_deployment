@@ -26,7 +26,6 @@ class Decoder(nn.Module):
         output, (hidden, cell) = self.lstm(x, (hidden, cell))
         prediction = self.fc_out(output)
         return prediction, hidden, cell
-
 class Seq2Seq(nn.Module):
     def __init__(self, input_dim, output_dim, hidden_dim, num_layers, dropout=0.3):
         super(Seq2Seq, self).__init__()
