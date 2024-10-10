@@ -205,6 +205,8 @@ def get_data_precip_72jam(path_hujan_72_jam):
 
 def get_input_ml1(path_hujan_hist):
     data_hujan, date_list, data_information, data_name_list = get_data_precip_72jam(path_hujan_hist)
+    data_hujan = data_hujan.tolist()
+    data_hujan = np.array(data_hujan)
     t,w,h = data_hujan.shape
     ch_wilayah = np.mean(data_hujan, axis = (1,2))
     input_ml1= torch.tensor(data_hujan)
