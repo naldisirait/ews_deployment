@@ -130,27 +130,3 @@ def convert_array_to_tif(data_array, filename, meta=None):
     with rasterio.open(filename, 'w', **meta) as dst:
         dst.write(data_array, 1)
         print(f"Successfully saved to {filename}")
-
-def output_ml1_to_json(values, filename, prediction_time):
-
-    path = r"EWS of Flood Forecast\hasil_prediksi\debit"
-    filename = f"{path}/{filename}"
-    try:
-        # Convert tensor to list or NumPy array if necessary
-        if isinstance(values, torch.Tensor):
-            values = values.detach().cpu().numpy()
-        values_list = values.tolist()
-
-        # Prepare data to save
-        data_to_save = {
-            'prediction_time': str(prediction_time),
-            'values': values_list
-        }
-        # Save to JSON file
-        with open(filename, 'w') as json_file:
-            json.dump(data_to_save, json_file)
-
-        print(f"Successfully saved JSON to {filename}")
-
-    except Exception as e:
-        print(f"Failed to save JSON to {filename}: {e}")
