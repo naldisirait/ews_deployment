@@ -31,7 +31,9 @@ def do_prediction():
     dict_output_ml2 = output_ml2_to_dict(dates=dates[-input_size_ml2:],output_ml2=genangan)
 
     output = {"Prediction Time Start": str(start_run_time), 
-            "Prediction Time Finished": str(end_run_time), 
+            "Prediction Time Finished": str(end_run_time),
+            "precip information": data_information,
+            "precip source":data_name_list,
             "Prediction Output ML1": dict_output_ml1,
             "Prediction Output ML2": dict_output_ml2}
 
