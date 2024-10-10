@@ -93,6 +93,7 @@ def wse_to_depth(wse):
         loaded_data = pickle.load(file)
         arr_dtm = loaded_data['arr_dtm']
     print(f"wse type {type(wse)}, arr_dtm type {type(arr_dtm)}")
+    print(f"wse dtype: {wse.dtype}, arr_dtm dtype: {arr_dtm.dtype}")
     print(wse.shape, arr_dtm.shape)
     depth = wse - arr_dtm
     depth[depth<0] = 0
