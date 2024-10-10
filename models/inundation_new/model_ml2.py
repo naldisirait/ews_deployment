@@ -124,6 +124,7 @@ def inference_ml2(input_debit):
     """
     max_debit = float(torch.max(input_debit))
     if max_debit <= 200:
+        print("Max debit is less than 200, getting depth from non flood event")
         return get_non_flood_depth()
     device = "cpu"
     width, height = 1621, 1680
