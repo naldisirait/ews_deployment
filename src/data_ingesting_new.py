@@ -139,8 +139,8 @@ def get_data_from_biglake(date):
             
 def get_data_precip_72jam(path_hujan_72_jam):
     # Step 1: Get current time
-    current_time = datetime.now()
-    #current_time = datetime(2020, 5, 2, 22, 0)
+    #current_time = datetime.now()
+    current_time = datetime(2023, 11, 20, 19, 0)
     
     # Step 2: Convert current time's minutes and seconds to zero
     current_time = current_time.replace(minute=0, second=0, microsecond=0)
