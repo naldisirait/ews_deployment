@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 import numpy as np
-
+import os
 #import module from this projects
 from src.utils import get_current_datetime
 from models.discharge_new.model_ml1 import inference_ml1
