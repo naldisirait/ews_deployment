@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import pickle
+import numpy as np
 
 class CNNModelBN(nn.Module):
     def __init__(self, steps, features, outputs):
@@ -87,7 +88,8 @@ def wse_to_depth(wse):
         depth(np.ndarray): predicted depth with shape(width, height)
     """
     # Open data dtm
-    wse = wse.numpy()
+    wse = wse.tolist()
+    wse = np.array(wse)
     path_dtm = './data/data dtm.pkl'
     with open(path_dtm, 'rb') as file:
         loaded_data = pickle.load(file)
