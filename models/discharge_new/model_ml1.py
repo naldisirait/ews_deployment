@@ -141,7 +141,7 @@ def load_model_f13(device):
     model_f13 = RegressionCNN(in_channels=number_of_channels,num_filters=num_filters)
     
     # Load the state_dict (weights) into the model
-    model_f13.load_state_dict(torch.load(path_trained_f13))
+    model_f13.load_state_dict(torch.load(path_trained_f13,map_location=torch.device('cpu')))
     
     # Set the model to evaluation mode if you are using it for inference
     model_f13.to(device)
@@ -164,7 +164,7 @@ def load_model_f11(device):
     
     #load model
     path_trained_model_f11 = "./models/discharge_new/Hasil eksperimen Ml 1 forecast 11 best.pth"
-    model_f11.load_state_dict(torch.load(path_trained_model_f11))
+    model_f11.load_state_dict(torch.load(path_trained_model_f11, map_location=torch.device('cpu')))
     
     # Set the model to evaluation mode if you are using it for inference
     model_f11.to(device)

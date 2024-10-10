@@ -73,7 +73,7 @@ def load_model_ml2(width, height, device):
     model = CNNModelBN(steps=steps, features=features, outputs=output_size)
     model.to(device)
     path_trained_model_ml2 = "./models/inundation_new/CNN Kabir 100 epoch 44 kasus Augmented.pth"
-    model.load_state_dict(torch.load(path_trained_model_ml2, map_location=torch.device(device)))
+    model.load_state_dict(torch.load(path_trained_model_ml2, map_location=torch.device('cpu')))
     model.eval()
     print("Successfully loaded ml2")
     return model
