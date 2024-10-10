@@ -88,7 +88,7 @@ def wse_to_depth(wse):
     """
     # Open data dtm
     wse = wse.numpy()
-    path_dtm = 'data dtm.pkl'
+    path_dtm = './data/data dtm.pkl'
     with open(path_dtm, 'rb') as file:
         loaded_data = pickle.load(file)
         arr_dtm = loaded_data['arr_dtm']
