@@ -123,8 +123,8 @@ def inference_ml2(input_debit):
         pred_inundation(tensor): estimated max depth given input debit
     """
     max_debit = float(torch.max(input_debit))
-    print(f"Max debit {max_debit}")
-    print(input_debit.view(-1))
+    # print(f"Max debit {max_debit}")
+    # print(input_debit.view(-1))
     if max_debit <= 200:
         print("Max debit is less than 200, getting depth from non flood event")
         return get_non_flood_depth()
