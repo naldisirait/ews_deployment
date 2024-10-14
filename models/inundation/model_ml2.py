@@ -130,6 +130,7 @@ def inference_ml2(input_debit):
     device = "cpu"
     width, height = 1621, 1680
     model = load_model_ml2(width=width, height=height, device=device)
+    input_debit = input_debit + 200 #Ini cuma percobaan kalau debitnya dibesarkan, banjirnya gimana
     with torch.no_grad():
         output = model(input_debit)
         output = output.view(-1)
