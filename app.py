@@ -76,13 +76,12 @@ def do_prediction(t0=None):
 
     #2. Predict debit using ML1
     debit = inference_ml1(input_ml1,config)
-    input_debit = input_debit + 500 #Ini cuma percobaan kalau debitnya dibesarkan, banjirnya gimana
+    debit = debit + 500 #Ini cuma percobaan kalau debitnya dibesarkan, banjirnya gimana
     input_ml2 = debit[-input_size_ml2:].view(1,input_size_ml2,1)
 
     #3. Predict inundation using ML2
     genangan = inference_ml2(input_ml2)
     end_run_time = get_current_datetime()
-
     #4. Bundle output
     dates, dict_output_ml1 = output_ml1_to_dict(dates=date_list, output_ml1=debit.tolist(), precipitation=ch_wilayah)
     dict_output_ml2 = output_ml2_to_dict(dates=dates[-input_size_ml2:],output_ml2=genangan)
