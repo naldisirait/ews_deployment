@@ -18,6 +18,7 @@ def load_config(config_path):
     with open(config_path, 'r') as file:
         config = yaml.safe_load(file)
     return config
+
 # Define the input model
 class PredictionInput(BaseModel):
     t0: str
@@ -64,6 +65,7 @@ def do_prediction(t0=None):
     start_run_time = get_current_datetime()
     if t0:
         t0 = datetime.strptime(t0, '%Y-%m-%d %H:%M:%S')
+
     config_path = 'config.yaml'
     config = load_config(config_path)
     input_size_ml2 = config['model']['input_size_ml2']
@@ -92,7 +94,6 @@ def do_prediction(t0=None):
             "Prediction Output ML2": dict_output_ml2}
     
     output = ensure_jsonable(output)
-
     return output
 
 @app.post("/predict")
