@@ -76,7 +76,7 @@ def do_prediction(t0=None):
 
     #2. Predict debit using ML1
     debit = inference_ml1(input_ml1,config)
-    debit = debit + 500 #Ini cuma percobaan kalau debitnya dibesarkan, banjirnya gimana
+    #debit = debit + 500 #Ini cuma percobaan kalau debitnya dibesarkan, banjirnya gimana
     input_ml2 = debit[-input_size_ml2:].view(1,input_size_ml2,1)
 
     #3. Predict inundation using ML2
