@@ -97,8 +97,8 @@ def do_prediction(t0=None):
     return output
 
 @app.post("/predict")
-async def predict():
-    output = do_prediction(t0=PredictionInput.t0)
+async def predict(input_data: PredictionInput):
+    output = do_prediction(t0=input_data.t0)
     return output
 
 # Run the application using the following command:
