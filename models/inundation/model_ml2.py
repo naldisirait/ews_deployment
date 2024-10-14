@@ -122,7 +122,7 @@ def inference_ml2(input_debit):
     Returns:
         pred_inundation(tensor): estimated max depth given input debit
     """
-    max_debit = float(torch.max(input_debit))
+    max_debit = max(input_debit.reshape(-1).tolist())
     # print(f"Max debit {max_debit}")
     # print(input_debit.view(-1))
     if max_debit <= 200:
