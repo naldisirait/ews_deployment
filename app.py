@@ -66,7 +66,7 @@ def do_prediction(t0):
     input_size_ml2 = config['model']['input_size_ml2']
 
     #1. Ingest data hujan
-    path_hujan_hist_72jam = config['data processing']['path_hujan_hist_72jam']
+    path_hujan_hist_72jam = config['data_processing']['path_hujan_hist_72jam']
     input_ml1, ch_wilayah, date_list, data_information, data_name_list = get_input_ml1(t0=t0,config=config)
 
     #2. Predict debit using ML1
