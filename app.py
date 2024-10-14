@@ -4,6 +4,7 @@ from pydantic import BaseModel
 import numpy as np
 import os
 import yaml
+from datetime import datetime
 
 #import module from this projects
 from src.utils import get_current_datetime
@@ -22,7 +23,7 @@ class PredictionInput(BaseModel):
     t0: str
 
 app = FastAPI()
-def do_prediction(t0):
+def do_prediction(t0=None):
     """
     Run the prediction pipeline for both ML1 (discharge) and ML2 (inundation) models.
 
@@ -61,6 +62,8 @@ def do_prediction(t0):
     """
     # Get configuration to run the system
     start_run_time = get_current_datetime()
+    if t0:
+        t0 = datetime.strptime(t0, '%Y-%m-%d %H:%M:%S')
     config_path = 'config.yaml'
     config = load_config(config_path)
     input_size_ml2 = config['model']['input_size_ml2']
