@@ -89,6 +89,8 @@ def get_grided_prec_palu(date):
 
     # Gunakan FileUtil untuk menyalin dari HDFS ke sistem lokal
     spark._jvm.org.apache.hadoop.fs.FileUtil.copy(fs, hdfs_file_path, spark._jvm.org.apache.hadoop.fs.FileSystem.getLocal(hadoop_conf), local_file_path, False, hadoop_conf)
+    
+    print("Masuk sini gaaa")
     prec_val_palu = get_prec_only_palu(local_path)
     os.remove(local_path)
     return prec_val_palu
