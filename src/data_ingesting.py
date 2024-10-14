@@ -154,6 +154,7 @@ def get_data_from_biglake(date,config,correct_data=True):
         grided_data = interpolate_station_to_grided_palu(data_input)
         return "pupr", grided_data
     else:
+        date = date - timedelta(hours=8)
         jaxa_avaibility, data = get_precip_gsmap(date)
         if jaxa_avaibility=="Available":
             if correct_data:
