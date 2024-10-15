@@ -90,15 +90,21 @@ def do_prediction(t0=None):
             "Prediction Time Finished": str(end_run_time),
             "precip information": data_information,
             "precip source":data_name_list,
+            "precip date": date_list,
             "Prediction Output ML1": dict_output_ml1,
             "Prediction Output ML2": dict_output_ml2}
     
     output = ensure_jsonable(output)
     return output
 
+# @app.post("/predict")
+# async def predict(input_data: PredictionInput):
+#     output = do_prediction(t0=input_data.t0)
+#     return output
+
 @app.post("/predict")
-async def predict(input_data: PredictionInput):
-    output = do_prediction(t0=input_data.t0)
+async def predict():
+    output = do_prediction(t0=None)
     return output
 
 # Run the application using the following command:

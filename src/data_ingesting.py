@@ -217,14 +217,14 @@ def get_data_precip_72jam(path_hujan_72_jam, config, t0=None):
     half_data = len(data_name_list)/2
     
     if len(no_data_list)>half_data:
-        data_information = "Not Good"
+        data_information = "Not Good, 50 percent data missed"
     else:
         data_information = "Good"
     return np.array(data_list), date_list, data_information,data_name_list
 
 def get_input_ml1(t0, config):
     path_hujan_72_jam = config['data_processing']['path_hujan_hist_72jam']
-    data_hujan, date_list, data_information, data_name_list = get_data_precip_72jam(path_hujan_72_jam=path_hujan_72_jam,config=config,t0=t0)
+    data_hujan, date_list, data_information, data_name_list, = get_data_precip_72jam(path_hujan_72_jam=path_hujan_72_jam,config=config,t0=t0)
     data_hujan = data_hujan.tolist()
     data_hujan = np.array(data_hujan)
     t,w,h = data_hujan.shape
