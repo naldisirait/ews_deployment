@@ -77,14 +77,14 @@ def output_ml1_to_dict(dates, output_ml1, precipitation):
         "name": "wl", 
         "measurement_type": "forecast",
         "flood event": "yes" if max(output_ml1) > 200 else "no",
-        "time_data": time_data,
-        "precipitation": precipitation.tolist() if isinstance(precipitation, (np.ndarray, torch.Tensor)) else precipitation,
-        "data": output_ml1  # Ensure this is a list, already handled by output_ml1.tolist() before
+        "debit dates": time_data,
+        "precipitation value": precipitation.tolist() if isinstance(precipitation, (np.ndarray, torch.Tensor)) else precipitation,
+        "debit value": output_ml1  # Ensure this is a list, already handled by output_ml1.tolist() before
     }
     return dates, dict_output_ml1
 
 def output_ml2_to_dict(dates, output_ml2):
-    output_ml2[output_ml2 < 0.2] = 0
+    output_ml2[output_ml2 < 0.1] = 0
     
     # Convert output_ml2 to a list
     dict_output_ml2 = {
@@ -109,25 +109,15 @@ def convert_array_to_tif(data_array, filename, meta=None):
     import rasterio
     from rasterio.crs import CRS
 
-    path = r"EWS of Flood Forecast\hasil_prediksi\genangan"
-
-    # Convert tensor to NumPy array if necessary
-    if isinstance(data_array, torch.Tensor):
-        data_array = data_array.detach().cpu().numpy()
-        print("Data converted to numpy")
-
     #check if meta is provided or not
     if not meta:
-        meta = {'driver': 'GTiff',
-                 'dtype': 'float32',
-                 'nodata': -9999.0,
-                 'width': 2019,
-                 'height': 3078,
-                 'count': 1,
-                 'crs': CRS.from_epsg(32750),
-                 'transform': Affine(2.0, 0.0, 817139.0, 0.0, -2.0, 9902252.0968),
-                 "compress": "LZW"}
-    filename = f"{path}/{filename}"
+        meta ={'driver': 'GTiff',
+               'dtype': 'float32',
+               'nodata': -9999.0,
+               'width': 1680,
+               'height': 1621,
+               'count': 1,
+               'crs': CRS.from_epsg(32750),
+               'transform': Affine(5.0, 0.0, 815899.0,0.0, -5.0, 9902502.0968)}
     with rasterio.open(filename, 'w', **meta) as dst:
         dst.write(data_array, 1)
-        print(f"Successfully saved to {filename}")
