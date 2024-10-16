@@ -53,7 +53,7 @@ def do_prediction(t0=None):
          - Predictions for both discharge (ML1) and inundation (ML2).
     
     Args:
-        t0 (str): A time parameter used to specify the starting time for data ingestion.
+        t0 (str): A time parameter used to specify the starting time for data ingestion. If None, then using current datetime
     
     Returns:
         dict: A dictionary containing the prediction results and metadata, including:
