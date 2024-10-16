@@ -70,7 +70,6 @@ def output_ml1_to_dict(dates, output_ml1, precipitation):
     next_24hr = generate_next_24_hours(dates[-1])
     dates = dates + next_24hr
     time_data = dates[-len(output_ml1):]
-
     
     # Ensure `precipitation` is serialized
     dict_output_ml1 = {

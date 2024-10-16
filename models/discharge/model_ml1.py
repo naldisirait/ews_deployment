@@ -178,6 +178,7 @@ def inference_ml1(precip, config):
     """
     #set constants
     device = "cpu"
+    precip = precip.float() #make sure the value type is float
     target_seq_len = 11
     length_discharge_to_extract = 72
     
