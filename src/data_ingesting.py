@@ -108,7 +108,8 @@ def get_precip_pupr(date):
         path = f"hdfs://master-01.bnpb.go.id:8020/user/warehouse/SPLP/PUPR/curah_hujan/palu/curah_hujan_{date}.json"
         json_data = spark.read.option("multiline","true").json(path)
         df = json_data.toPandas()
-    except:
+    except Exception as e:
+        print(f"Error occurred: {e}")
         return "Not Available", None
     return "Available", df
 
