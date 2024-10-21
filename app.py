@@ -4,6 +4,7 @@ from pydantic import BaseModel
 import numpy as np
 import os
 import yaml
+import time
 from datetime import datetime
 
 #import module from this projects
@@ -71,17 +72,29 @@ def do_prediction(t0=None):
     input_size_ml2 = config['model']['input_size_ml2']
 
     #1. Ingest data hujan
+    t_start_ingest = time.time()
     path_hujan_hist_72jam = config['data_processing']['path_hujan_hist_72jam']
     input_ml1, ch_wilayah, date_list, data_information, data_name_list = get_input_ml1(t0=t0,config=config)
+    t_end_ingest = time.time()
+
+    print(f"Succesfully ingesting the data: {t_end_ingest-t_start_ingest}s")
 
     #2. Predict debit using ML1
+    t_start_ml1 = time.time()
     debit = inference_ml1(input_ml1,config)
     #debit = debit + 500 #Ini cuma percobaan kalau debitnya dibesarkan, banjirnya gimana
     input_ml2 = debit[-input_size_ml2:].view(1,input_size_ml2,1)
+    t_end_ml1 = time.time()
+
+    print(f"Succesfully inference ml1: {t_end_ml1-t_start_ml1}s")
 
     #3. Predict inundation using ML2
+    t_start_ml2 = time.time()
     genangan = inference_ml2(input_ml2)
+    t_end_ml2 = time.time()
+    print(f"Succesfully inference ml2: {t_end_ml2-t_start_ml2}s")
     end_run_time = get_current_datetime()
+
     #4. Bundle output
     dates, dict_output_ml1 = output_ml1_to_dict(dates=date_list, output_ml1=debit.tolist(), precipitation=ch_wilayah)
     dict_output_ml2 = output_ml2_to_dict(dates=dates[-input_size_ml2:],output_ml2=genangan)
