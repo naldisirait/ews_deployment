@@ -233,3 +233,13 @@ def get_input_ml1(t0, config):
     input_ml1= torch.tensor(data_hujan)
     input_ml1 = input_ml1.view(1,t,w,h)
     return input_ml1, ch_wilayah, date_list, data_information, data_name_list
+
+def get_input_ml1_hujan_max():
+    """
+    function to get max precipitation data to illustrate largest possible flood event.
+    """
+    path_hujan_max = "./data/data_hujan_max.pkl"
+    # Open the file in binary read mode and load the object
+    with open(path_hujan_max, 'rb') as file:
+        data = pickle.load(file)
+    return data

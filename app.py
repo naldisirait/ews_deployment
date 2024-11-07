@@ -11,7 +11,7 @@ from datetime import datetime
 from src.utils import get_current_datetime
 from models.discharge.model_ml1 import inference_ml1
 from models.inundation.model_ml2 import inference_ml2
-from src.data_ingesting import get_input_ml1
+from src.data_ingesting import get_input_ml1, get_input_ml1_hujan_max
 from src.post_processing import output_ml1_to_dict, output_ml2_to_dict, ensure_jsonable
 
 # Load YAML configuration
@@ -75,6 +75,7 @@ def do_prediction(t0=None):
     t_start_ingest = time.time()
     path_hujan_hist_72jam = config['data_processing']['path_hujan_hist_72jam']
     input_ml1, ch_wilayah, date_list, data_information, data_name_list = get_input_ml1(t0=t0,config=config)
+    input_ml1 = get_input_ml1_hujan_max() #hanya untuk menampilkan possible banjur terbesar
     t_end_ingest = time.time()
 
     print(f"Succesfully ingesting the data: {t_end_ingest-t_start_ingest}s")
