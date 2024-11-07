@@ -242,4 +242,6 @@ def get_input_ml1_hujan_max():
     # Open the file in binary read mode and load the object
     with open(path_hujan_max, 'rb') as file:
         data = pickle.load(file)
-    return data
+        value = data['data_hujan_max']
+        value = torch.tensor(value, dtype=torch.float)
+    return value
