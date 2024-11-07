@@ -243,5 +243,12 @@ def get_input_ml1_hujan_max():
     with open(path_hujan_max, 'rb') as file:
         data = pickle.load(file)
         value = data['data_input_max']
+
+        #get ch wilayah for input max hujan
+        value_np = np.array(value)[0]
+        ch_wilayah = np.mean(value_np, axis = (1,2))
+        ch_wilayah = ch_wilayah.tolist()
+
+        #get tensor value for input ml1
         value = torch.tensor(value, dtype=torch.float)
-    return value
+    return value, ch_wilayah
